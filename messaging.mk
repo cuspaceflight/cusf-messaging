@@ -3,7 +3,6 @@ MESSAGING_INCLUDES = \
 	$(MESSAGING)/include/config
 
 MESSAGING_LIB_DIR = $(MESSAGING)/build-fw
-MESSAGING_LIB = $(MESSAGING_LIB_DIR)/libmessaging.a
 
 ifeq ($(OS),Windows_NT)
 	# This will print a warning if the directory exists - not sure how to suppress this

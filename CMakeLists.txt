@@ -47,6 +47,7 @@ set_property(TARGET messaging PROPERTY C_STANDARD 11)
 SET (MESSAGING_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include/config
+	${OS_INCLUDES}
 )
 
 get_directory_property(hasParent PARENT_DIRECTORY)
@@ -56,5 +57,4 @@ endif()
 
 target_include_directories ( messaging PUBLIC
     ${MESSAGING_INCLUDES}
-	${OS_INCLUDES}
 )
