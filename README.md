@@ -20,7 +20,7 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(CHIBIOS)/os/various $(FATFSINC) $(MESSAGING_INCLUDES)
 ```
 
-Then add instruct the linker to link the library. For example
+Then instruct the linker to link the library. For example
 
 ```make
 # List the default directory to look for the libraries here
