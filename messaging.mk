@@ -25,7 +25,7 @@ MAKEFILE_DIR := $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
 
 .PHONY: clean_messaging build_messaging
 
-build_messaging $(MESSAGING_LIB):
+build_messaging:
 	@ cd $(MESSAGING) \
 	&& $(MAKE_DIR) \
 	$(CONTINUE_EVEN_IF_ERROR_OPERATOR) cd build-fw \

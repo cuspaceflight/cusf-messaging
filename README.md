@@ -33,7 +33,7 @@ DLIBS = -lmessaging -lm
 Then after the line include $(RULESPATH)/rules.mk add the following to ensure it recompiles the library when needed.
 
 ```make
-$(OBJS): $(MESSAGING_LIB)
+$(OBJS): build_messaging
 clean: clean_messaging
 ```
 
