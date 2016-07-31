@@ -5,7 +5,7 @@
 
 // TODO: Enforce heap limits
 
-static std::atomic<bool> is_started = false;
+static std::atomic<bool> is_started(false);
 
 extern "C" void telemetry_allocator_start(void) {
     is_started.store(true, std::memory_order_release);

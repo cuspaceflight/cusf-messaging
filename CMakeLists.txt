@@ -39,9 +39,6 @@ foreach(FILE ${SOURCES} ${HEADERS} ${CMAKELISTS})
 endforeach()
 
 add_library(messaging ${HEADERS} ${SOURCES} ${CMAKELISTS})
-
-set(CMAKE_C_FLAGS ${ADDITIONAL_C_FLAGS})
-
 set_property(TARGET messaging PROPERTY C_STANDARD 11)
 
 SET (MESSAGING_INCLUDES

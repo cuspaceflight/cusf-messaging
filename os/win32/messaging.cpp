@@ -34,19 +34,19 @@ struct message_consumer_impl_t {
     volatile bool is_paused;
 };
 
-static std::atomic<uint32_t> cur_consumer_pool_index = 0;
+static std::atomic<uint32_t> cur_consumer_pool_index(0);
 
 static message_consumer_impl_t consumer_pool[MAX_NUM_CONSUMERS];
 
 static std::mutex consumer_register_mutex;
 
-static std::atomic<uint32_t> cur_producer_pool_index = 0;
+static std::atomic<uint32_t> cur_producer_pool_index(0);
 
 static message_producer_impl_t producer_pool[MAX_NUM_PRODUCERS];
 
 static std::mutex producer_register_mutex;
 
-static std::atomic<bool> is_started = false;
+static std::atomic<bool> is_started(false);
 
 // Defined in component_state.c
 extern "C" void component_state_register_with_messaging(void);

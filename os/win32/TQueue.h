@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <queue>
 #include <mutex>
+#include <condition_variable>
 
 template <class T> 
 class TQueue {

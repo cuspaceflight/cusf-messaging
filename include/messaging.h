@@ -13,7 +13,7 @@ extern "C" {
     TELEMETRY_ALLOCATOR(name##_allocator, (payload_size + sizeof(telemetry_t))*max_num_packets) \
     static message_producer_t name = {packet_id, payload_size, &name##_allocator, NULL};
 
-#ifdef WIN32
+#ifdef _WIN32
 // On windows we don't bother allocating the buffer as it won't be used
 #define MESSAGING_CONSUMER(name, packet_source, packet_source_mask, message_metadata, message_metadata_mask, consumer_func, mailbox_size) \
     static message_consumer_t name = {packet_source, packet_source_mask, message_metadata, message_metadata_mask, consumer_func, mailbox_size, NULL, NULL};
