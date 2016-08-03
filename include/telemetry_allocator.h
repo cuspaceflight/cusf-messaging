@@ -1,6 +1,7 @@
 #ifndef TELEMETRY_ALLOCATOR_H
 #define TELEMETRY_ALLOCATOR_H
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include "telemetry.h"
 #include "platform.h"
@@ -19,7 +20,7 @@ typedef struct telemetry_allocator_t {
 } telemetry_allocator_t;
 
 
-#ifdef WIN32
+#ifdef _WIN32
 // On windows we don't bother allocating the buffer as it won't be used
 #define TELEMETRY_ALLOCATOR(name, heap_size) \
     static telemetry_allocator_t name = {heap_size, NULL, NULL};

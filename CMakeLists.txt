@@ -1,15 +1,8 @@
 cmake_minimum_required (VERSION 3.2)
+set(CMAKE_DISABLE_SOURCE_CHANGES ON)
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
 project(messaging)
-
-if ("${PROJECT_BINARY_DIR}" STREQUAL "${PROJECT_SOURCE_DIR}")
-  message(FATAL_ERROR
-    "In-source builds are not permitted!  Make a separate folder for"
-    " building, e.g.,"
-    "mkdir build; cd build; cmake .."
-    "Before that, remove the files created by this failed run with"
-    "rm -rf CMakeCache.txt CMakeFiles")
-endif ()
 
 # Visual Studio misbehaves unless you set all of these
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -49,9 +42,8 @@ foreach(FILE ${SOURCES} ${HEADERS} ${CMAKELISTS})
   source_group("${GROUP}" FILES "${FILE}")
 endforeach()
 
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${ADDITIONAL_C_FLAGS})
 add_library(messaging ${HEADERS} ${SOURCES} ${CMAKELISTS})
-set(CMAKE_C_FLAGS ${ADDITIONAL_C_FLAGS})
-set_property(TARGET messaging PROPERTY C_STANDARD 11)
 
 SET (MESSAGING_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/include
