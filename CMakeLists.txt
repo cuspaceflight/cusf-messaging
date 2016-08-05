@@ -30,7 +30,7 @@ endif (NOT DEFINED MESSAGING_OS)
 
 # We can use GLOB here as in order for a CMakeList to be used a pre-existing one
 # must have been modified and therefore the build system will know to rebuild
-FILE(GLOB_RECURSE CMAKELISTS Source/*CMakeLists.txt)
+FILE(GLOB_RECURSE CMAKELISTS */*CMakeLists.txt)
 
 # Rebuild directory structure within Visual Studio
 foreach(FILE ${SOURCES} ${HEADERS} ${CMAKELISTS})

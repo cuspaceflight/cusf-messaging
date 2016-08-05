@@ -37,13 +37,7 @@ typedef struct mpu9250_calibrated_data_t {
 
 } mpu9250_calibrated_data_t;
 
-static inline void mpu9250_calibrate_data(const mpu9250_config_t* config, const mpu9250_data_t* uncalibrated_data, mpu9250_calibrated_data_t* calibrated_data) {
-    for (int i = 0; i < 3; i++) {
-        calibrated_data->accel[i] = uncalibrated_data->accel[i] * config->accel_sf;
-        calibrated_data->gyro[i] = uncalibrated_data->gyro[i] * config->gyro_sf;
-        calibrated_data->magno[i] = uncalibrated_data->magno[i] * config->magno_sf;
-    }
-}
+void mpu9250_calibrate_data(const mpu9250_config_t* config, const mpu9250_data_t* uncalibrated_data, mpu9250_calibrated_data_t* calibrated_data);
 
 static const uint32_t mpu9250_send_over_usb_count = 100; // Will send 1 in every 100 samples
 static const uint32_t mpu9250_send_config_count = 5000; // Will resend config every 1000 samples

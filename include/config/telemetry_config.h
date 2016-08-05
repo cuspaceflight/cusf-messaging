@@ -52,9 +52,10 @@ typedef enum {
     TELEMETRY_ID(telemetry_id_adis16405_data, telemetry_source_adis16405,                   0b00010000111),
 
     // State Estimation
-    TELEMETRY_SOURCE(telemetry_source_state_estimation, telemetry_source_all,               0b10000000000, 10),
+    TELEMETRY_SOURCE(telemetry_source_state_estimation, telemetry_source_all,               0b10000000000, 9),
     TELEMETRY_ID(telemetry_id_state_estimate_config, telemetry_source_state_estimation,     0b10000000000),
     TELEMETRY_ID(telemetry_id_state_estimate_data, telemetry_source_state_estimation,       0b10000000001),
+    TELEMETRY_ID(telemetry_id_state_estimate_status, telemetry_source_state_estimation,     0b10000000010),
 } telemetry_id_t;
 
 typedef enum {

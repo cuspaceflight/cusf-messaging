@@ -1,3 +1,5 @@
+add_subdirectory(config)
+
 
 set (SOURCES ${SOURCES}
 	${CMAKE_CURRENT_SOURCE_DIR}/time_utils.c
