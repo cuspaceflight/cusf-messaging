@@ -23,13 +23,8 @@ typedef struct mpu9250_config_t {
     // Converts to rad/s
     float gyro_sf;
 
-    // Converts to micro Tesla
-    float magno_sf;
-
-    float accel_bias[3];
+    float magno_sf[3];
     float magno_bias[3];
-
-    uint8_t mag_sensitivity_adjustment[3];
 } mpu9250_config_t;
 
 typedef struct mpu9250_calibrated_data_t {
