@@ -20,6 +20,9 @@ STATIC_ASSERT(sizeof(ms5611data_t) == 8, ms5611data_padded);
 
 static const uint32_t ms5611_send_over_usb_count = 5; // Will send 1 in every 100 samples
 
+float ms5611_get_altitude(float pressure);
+
+
 #ifdef __cplusplus
 }
 #endif

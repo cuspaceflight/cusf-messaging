@@ -106,6 +106,10 @@ static telemetry_t* serial_interface_read_frame(serial_interface_t* serial_inter
     return packet;
 }
 
+void serial_interface_init(serial_interface_t* serial_interface) {
+    telemetry_allocator_init(serial_interface->telemetry_allocator);
+}
+
 telemetry_t* serial_interface_next_packet(serial_interface_t* serial_interface) {
     while (true) {
         while (serial_interface->stream_get() != 0x7E) {}

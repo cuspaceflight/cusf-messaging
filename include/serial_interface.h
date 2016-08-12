@@ -27,6 +27,8 @@ typedef struct serial_interface_t {
     TELEMETRY_ALLOCATOR(name##_allocator, heap_size) \
     static serial_interface_t name = {stream_get, stream_put, stream_flush_write, &name##_allocator};
 
+void serial_interface_init(serial_interface_t* serial_interface);
+
 // Will block until a valid packet is received
 // The caller is the new owner of the returned packet and is
 // responsible for ensuring it is cleaned up correctly

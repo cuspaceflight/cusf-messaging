@@ -25,6 +25,11 @@ typedef struct mpu9250_config_t {
 
     // Converts to micro Tesla
     float magno_sf;
+
+    float accel_bias[3];
+    float magno_bias[3];
+
+    uint8_t mag_sensitivity_adjustment[3];
 } mpu9250_config_t;
 
 typedef struct mpu9250_calibrated_data_t {
@@ -37,6 +42,7 @@ typedef struct mpu9250_calibrated_data_t {
 
 } mpu9250_calibrated_data_t;
 
+// Also alters the magnetometer's axes to match those of the other sensors
 void mpu9250_calibrate_data(const mpu9250_config_t* config, const mpu9250_data_t* uncalibrated_data, mpu9250_calibrated_data_t* calibrated_data);
 
 static const uint32_t mpu9250_send_over_usb_count = 100; // Will send 1 in every 100 samples

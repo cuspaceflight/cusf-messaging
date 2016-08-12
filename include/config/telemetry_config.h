@@ -19,6 +19,7 @@ extern "C" {
 typedef enum {
     telemetry_source_all = 0b00000000000,
     telemetry_source_all_mask = 0b00000000000,
+    telemetry_source_packet_specific_mask = 0b11111111111,
 
     ///
     // Aggregate Sources
@@ -56,6 +57,11 @@ typedef enum {
     TELEMETRY_ID(telemetry_id_state_estimate_config, telemetry_source_state_estimation,     0b10000000000),
     TELEMETRY_ID(telemetry_id_state_estimate_data, telemetry_source_state_estimation,       0b10000000001),
     TELEMETRY_ID(telemetry_id_state_estimate_status, telemetry_source_state_estimation,     0b10000000010),
+
+    // Calibration
+    TELEMETRY_SOURCE(telemetry_source_calibration, telemetry_source_all,                    0b01000000000, 10),
+    TELEMETRY_ID(telemetry_id_calibration_control, telemetry_source_calibration,            0b01000000000),
+    TELEMETRY_ID(telemetry_id_calibration_data, telemetry_source_calibration,               0b01000000001),
 } telemetry_id_t;
 
 typedef enum {

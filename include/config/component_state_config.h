@@ -13,6 +13,7 @@ typedef enum {
     avionics_component_ms5611,
     avionics_component_config,
     avionics_component_state_estimation,
+    avionics_component_calibration,
     avionics_component_max // This must be last
 } avionics_component_t;
 

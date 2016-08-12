@@ -28,7 +28,6 @@ typedef struct state_estimate_calibration_t {
     float alt_offset;
 } state_estimate_calibration_t;
 
-// TODO: Implement this functionality
 typedef struct state_estimate_status_t {
      // The length of time over which samples were taken
     float sample_time;
