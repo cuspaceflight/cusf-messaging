@@ -6,7 +6,7 @@
 #define MEMORY_BUFFER_ATTRIBUTES
 #else
 #include "ch.h"
-#define MEMORY_BUFFER_ATTRIBUTES __attribute__((aligned(sizeof(stkalign_t)))) __attribute__((section(".ccm")))
+#define MEMORY_BUFFER_ATTRIBUTES __attribute__((aligned(sizeof(stkalign_t)))) __attribute__((section(".ram4")))
 #endif
 
 #ifdef __cplusplus

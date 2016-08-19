@@ -24,7 +24,7 @@ struct message_producer_impl_t {
 };
 
 struct message_consumer_impl_t {
-	Mailbox mailbox;
+	mailbox_t mailbox;
 	message_consumer_t* parent;
     volatile bool is_paused;
 };
@@ -33,17 +33,17 @@ static volatile uint32_t cur_consumer_pool_index = 0;
 
 static message_consumer_impl_t consumer_pool[MAX_NUM_CONSUMERS];
 
-static Mutex consumer_register_mutex;
+static mutex_t consumer_register_mutex;
 
 static volatile uint32_t cur_producer_pool_index = 0;
 
 static message_producer_impl_t producer_pool[MAX_NUM_PRODUCERS];
 
-static Mutex producer_register_mutex;
+static mutex_t producer_register_mutex;
 
 static volatile char telemetry_ref_memory_pool_buffer[MAX_NUM_TELEMETRY_REFS * sizeof(telemetry_ref_t)];
 
-static MemoryPool telemetry_ref_memory_pool;
+static memory_pool_t telemetry_ref_memory_pool;
 
 static volatile bool is_started = false;
 
@@ -51,10 +51,10 @@ static volatile bool is_started = false;
 void component_state_register_with_messaging(void);
 
 void messaging_start(void) {
-	chPoolInit(&telemetry_ref_memory_pool, sizeof(telemetry_ref_t), NULL);
+	chPoolObjectInit (&telemetry_ref_memory_pool, sizeof(telemetry_ref_t), NULL);
 	chPoolLoadArray(&telemetry_ref_memory_pool, (void*)telemetry_ref_memory_pool_buffer, MAX_NUM_TELEMETRY_REFS);
-	chMtxInit(&consumer_register_mutex);
-	chMtxInit(&producer_register_mutex);
+	chMtxObjectInit(&consumer_register_mutex);
+	chMtxObjectInit(&producer_register_mutex);
 
     memory_barrier_release();
 
@@ -120,11 +120,11 @@ static void telemetry_reference_release(telemetry_ref_t* ref) {
 bool messaging_producer_init(message_producer_t* producer) {
     chMtxLock(&producer_register_mutex);
 	if (producer->impl != NULL) {
-        chMtxUnlock(); // producer_register_mutex
+        chMtxUnlock(&producer_register_mutex);
 		return true; // We assume it has already been initialised
     }
 	if (cur_producer_pool_index >= MAX_NUM_PRODUCERS) {
-		chMtxUnlock(); // producer_register_mutex
+		chMtxUnlock(&producer_register_mutex);
         COMPONENT_STATE_UPDATE(avionics_component_messaging, state_error);
 		return false;
 	}
@@ -139,7 +139,7 @@ bool messaging_producer_init(message_producer_t* producer) {
 	// We don't need the thread safe version
 	// As stores are atomic and we only modify within this lock zone
 	cur_producer_pool_index++; // NB: this must be done after all initialization
-	chMtxUnlock(); // producer_register_mutex
+	chMtxUnlock(&producer_register_mutex);
 	return true;
 }
 
@@ -147,12 +147,12 @@ bool messaging_producer_init(message_producer_t* producer) {
 bool messaging_consumer_init(message_consumer_t* consumer) {
     chMtxLock(&consumer_register_mutex);
 	if (consumer->impl != NULL) {
-        chMtxUnlock(); // consumer_register_mutex
+        chMtxUnlock(&consumer_register_mutex);
 		return true; // We assume it has already been initialised
     }
 
 	if (cur_consumer_pool_index >= MAX_NUM_CONSUMERS) {
-		chMtxUnlock(); // consumer_register_mutex
+		chMtxUnlock(&consumer_register_mutex);
         COMPONENT_STATE_UPDATE(avionics_component_messaging, state_error);
 		return false;
 	}
@@ -160,21 +160,21 @@ bool messaging_consumer_init(message_consumer_t* consumer) {
 	consumer->impl->parent = consumer;
 
 	// Perform any initialisation
-	chMBInit(&consumer->impl->mailbox, (msg_t*)consumer->mailbox_buffer, consumer->mailbox_size);
+	chMBObjectInit(&consumer->impl->mailbox, (msg_t*)consumer->mailbox_buffer, consumer->mailbox_size);
 
     memory_barrier_release();
 
 	// We don't need the thread safe version
 	// As stores are atomic and we only modify within this lock zone
 	cur_consumer_pool_index++; // NB: this must be done after all initialization
-	chMtxUnlock(); // consumer_register_mutex
+	chMtxUnlock(&consumer_register_mutex);
 	return true;
 }
 
 
 static bool messaging_consumer_enqueue_packet(message_consumer_t* consumer, telemetry_ref_t* ref) {
 	msg_t retval = chMBPost(&consumer->impl->mailbox, (intptr_t)ref, TIME_IMMEDIATE);
-	if (retval == RDY_OK) {
+	if (retval == MSG_OK) {
 		telemetry_reference_retain(ref);
 		return true;
 	}
@@ -246,7 +246,7 @@ messaging_receive_return_codes messaging_consumer_receive(message_consumer_t* co
 
     intptr_t data_msg;
     msg_t mailbox_ret = chMBFetch(&(consumer->impl->mailbox), (msg_t*)&data_msg, blocking ? TIME_INFINITE : TIME_IMMEDIATE);
-    if (mailbox_ret != RDY_OK || data_msg == 0)
+    if (mailbox_ret != MSG_OK || data_msg == 0)
         return messaging_receive_buffer_empty;
 
     telemetry_ref_t* ref = (telemetry_ref_t*)data_msg;

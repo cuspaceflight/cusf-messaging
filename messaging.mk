@@ -33,7 +33,7 @@ build_messaging:
 		-G$(MAKEFILES) \
 		-DCMAKE_TOOLCHAIN_FILE=Toolchain-arm-none-eabi.cmake \
 		-DMESSAGING_OS=chibios \
-		-DADDITIONAL_C_FLAGS="$(MCFLAGS) $(OPT) $(COPT) $(CWARN) -mthumb -mno-thumb-interwork $(subst -I, -I$(MAKEFILE_DIR),$(IINCDIR))" \
+		-DADDITIONAL_C_FLAGS="$(MCFLAGS) $(OPT) $(COPT) $(CWARN) $(TOPT) -mno-thumb-interwork $(subst -I, -I$(MAKEFILE_DIR),$(IINCDIR))" \
 		.. \
 	&& $(MAKE)
 

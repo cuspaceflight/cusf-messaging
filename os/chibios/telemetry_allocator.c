@@ -3,7 +3,7 @@
 #include "component_state.h"
 
 struct telemetry_allocator_impl_t {
-    MemoryHeap memory_heap;
+    memory_heap_t memory_heap;
 };
 
 #define MAX_NUM_ALLOCATORS 32
@@ -19,12 +19,12 @@ static telemetry_allocator_impl_t allocator_pool[MAX_NUM_ALLOCATORS];
 // This protects cur_allocator_pool_index
 // and the allocation of sections of allocator_heap_buffer
 // This could be made more fine-grained but I see no major reason to
-static Mutex register_mutex;
+static mutex_t register_mutex;
 
 static volatile bool is_started = false;
 
 void telemetry_allocator_start(void) {
-    chMtxInit(&register_mutex);
+    chMtxObjectInit(&register_mutex);
     cur_allocator_pool_index = 0;
 
     memory_barrier_release();
@@ -46,11 +46,11 @@ bool telemetry_allocator_started(void) {
 bool telemetry_allocator_init(telemetry_allocator_t* allocator) {
     chMtxLock(&register_mutex);
     if (allocator->impl != NULL) {
-        chMtxUnlock(); // register_mutex
+        chMtxUnlock(&register_mutex);
         return true; // We assume has already been allocated
     }
     if (cur_allocator_pool_index >= MAX_NUM_ALLOCATORS) {
-        chMtxUnlock(); // register_mutex
+        chMtxUnlock(&register_mutex);
         COMPONENT_STATE_UPDATE(avionics_component_telemetry_allocator, state_error);
         return false; // TODO: Log some sort of error
     }
@@ -58,9 +58,9 @@ bool telemetry_allocator_init(telemetry_allocator_t* allocator) {
     allocator->impl = &(allocator_pool[cur_allocator_pool_index]);
     cur_allocator_pool_index++;
 
-    chHeapInit(&allocator->impl->memory_heap, (void*)allocator->heap_buffer, allocator->heap_size);
+    chHeapObjectInit(&allocator->impl->memory_heap, (void*)allocator->heap_buffer, allocator->heap_size);
 
-    chMtxUnlock(); // register_mutex
+    chMtxUnlock(&register_mutex);
     return true;
 }
 

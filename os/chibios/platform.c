@@ -2,11 +2,11 @@
 #include "hal.h"
 
 uint32_t platform_get_counter_value() {
-    return halGetCounterValue();
+    return port_rt_get_counter_value();
 }
 
 uint32_t platform_get_counter_frequency() {
-    return halGetCounterFrequency();
+    return STM32_HCLK;
 }
 
 // Data Memory Barrier acts as a memory barrier. It ensures that all explicit
@@ -24,5 +24,5 @@ inline void memory_barrier_release(void) {
 }
 
 void platform_set_thread_name(const char* name) {
-    chRegSetThreadName("MS5611");
+    chRegSetThreadName(name);
 }
