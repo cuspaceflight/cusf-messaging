@@ -37,9 +37,16 @@ build_messaging:
 		.. \
 	&& $(MAKE)
 
-all : build_messaging $(OBJS) $(OUTFILES) MAKE_ALL_RULE_HOOK
-
-
+	
 clean_messaging:
 	@cd $(MESSAGING) \
 	&& $(DEL_DIR)
+
+ifeq ($(BUILDDIR),)
+  BUILDDIR = build
+endif
+ifeq ($(BUILDDIR),.)
+  BUILDDIR = build
+endif
+	
+$(BUILDDIR)/$(PROJECT).elf : build_messaging
