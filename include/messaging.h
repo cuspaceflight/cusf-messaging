@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "messaging_defs.h"
 #include "platform.h"
+#include "compilermacros.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,14 +14,16 @@ extern "C" {
     TELEMETRY_ALLOCATOR(name##_allocator, (payload_size + sizeof(telemetry_t))*max_num_packets) \
     static message_producer_t name = {packet_id, payload_size, &name##_allocator, NULL};
 
-#ifdef _WIN32
+#if defined MESSAGING_OS_STD
 // On windows we don't bother allocating the buffer as it won't be used
 #define MESSAGING_CONSUMER(name, packet_source, packet_source_mask, message_metadata, message_metadata_mask, consumer_func, mailbox_size) \
     static message_consumer_t name = {packet_source, packet_source_mask, message_metadata, message_metadata_mask, consumer_func, mailbox_size, NULL, NULL};
-#else
+#elif defined MESSAGING_OS_CHIBIOS
 #define MESSAGING_CONSUMER(name, packet_source, packet_source_mask, message_metadata, message_metadata_mask, consumer_func, mailbox_size) \
     static volatile msg_t name##_mailbox_buffer[mailbox_size] MEMORY_BUFFER_ATTRIBUTES; \
     static message_consumer_t name = {packet_source, packet_source_mask, message_metadata, message_metadata_mask, consumer_func, mailbox_size, name##_mailbox_buffer, NULL};
+#else
+#error Unrecognised Messaging OS
 #endif
 
 void messaging_start(void);

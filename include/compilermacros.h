@@ -27,4 +27,10 @@
     typedef struct { int CTASTR(static_assertion_failed_,msg) : !!(cond); } \
         CTASTR(static_assertion_failed_,__COUNTER__)
 
+#if defined (_WIN32) || defined (__linux__) || defined (__unix__) || defined(_POSIX_VERSION) || defined(__APPLE__)
+#define MESSAGING_OS_STD
+#else
+#define MESSAGING_OS_CHIBIOS
+#endif
+
 #endif // COMPILER_MACROS_H

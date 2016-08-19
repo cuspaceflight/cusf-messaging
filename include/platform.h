@@ -1,12 +1,15 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 #include <stdint.h>
+#include "compilermacros.h"
 
-#ifdef _WIN32
+#if defined MESSAGING_OS_STD
 #define MEMORY_BUFFER_ATTRIBUTES
-#else
+#elif defined MESSAGING_OS_CHIBIOS
 #include "ch.h"
 #define MEMORY_BUFFER_ATTRIBUTES __attribute__((aligned(sizeof(stkalign_t)))) __attribute__((section(".ram4")))
+#else
+#error Unrecognised Messaging OS
 #endif
 
 #ifdef __cplusplus

@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "telemetry.h"
 #include "platform.h"
+#include "compilermacros.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,14 +21,16 @@ typedef struct telemetry_allocator_t {
 } telemetry_allocator_t;
 
 
-#ifdef _WIN32
+#if defined MESSAGING_OS_STD
 // On windows we don't bother allocating the buffer as it won't be used
 #define TELEMETRY_ALLOCATOR(name, heap_size) \
     static telemetry_allocator_t name = {heap_size, NULL, NULL};
-#else
+#elif defined(MESSAGING_OS_CHIBIOS)
 #define TELEMETRY_ALLOCATOR(name, heap_size) \
     static volatile char name##_buffer[heap_size] MEMORY_BUFFER_ATTRIBUTES; \
     static telemetry_allocator_t name = {heap_size, name##_buffer, NULL};
+#else
+#error Unrecognised Messaging OS
 #endif
 
 

@@ -9,7 +9,7 @@ static void gen_crc32_lookup(void) {
 	for (uint32_t byte = 0; byte <= 255; byte++) {
 		crc = byte;
 		for (int j = 7; j >= 0; j--) { // Do eight times.
-			mask = -(crc & 1);
+			mask = (uint32_t)-(int32_t)(crc & 1);
 			crc = (crc >> 1) ^ (0xEDB88320 & mask);
 		}
 		crc32_lookup[byte] = crc;
