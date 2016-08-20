@@ -11,6 +11,7 @@ typedef enum {
     message_flags_dont_send_over_usb = 1 << 1,
     message_flags_dont_send_over_rs232 = 1 << 2,
     message_flags_dont_send_over_radio = 1 << 3,
+	message_flags_may_split_packet = 1 << 4,
 } message_flags_t;
 
 #ifdef __cplusplus
