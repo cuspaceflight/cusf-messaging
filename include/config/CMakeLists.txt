@@ -6,7 +6,4 @@ set (HEADERS ${HEADERS}
 	${CMAKE_CURRENT_SOURCE_DIR}/component_state_config.h
 	${CMAKE_CURRENT_SOURCE_DIR}/messaging_config.h
 	${CMAKE_CURRENT_SOURCE_DIR}/telemetry_config.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/mpu9250_config.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/ms5611_config.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/state_estimate_config.h
     PARENT_SCOPE)
