@@ -114,7 +114,8 @@ telemetry_t* serial_interface_next_packet(serial_interface_t* serial_interface) 
     while (true) {
         while (serial_interface->stream_get() != 0x7E) {}
         struct telemetry_t* ret;
-        if ((ret = serial_interface_read_frame(serial_interface)) != NULL)
-            return ret;
+		if ((ret = serial_interface_read_frame(serial_interface)) != NULL)
+			return ret;
+	    return NULL;
     }
 }
