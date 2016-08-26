@@ -68,7 +68,8 @@ typedef enum {
     telemetry_origin_m3radio = 4,
     telemetry_origin_m3imu = 5,
     telemetry_origin_m3dl = 6,
-    telemetry_origin_avionics_gui = 7
+    telemetry_origin_avionics_gui = 7,
+	telemetry_origin_invalid = 8,
 } telemetry_origin_t;
 
 #ifdef __cplusplus
