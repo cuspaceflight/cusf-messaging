@@ -24,46 +24,38 @@ typedef enum {
     telemetry_source_all_mask = 0b000000,
     telemetry_source_packet_specific_mask = 0b111111,
 
-    ///
-    // Aggregate Sources
-    ///
-
-    TELEMETRY_SOURCE(telemetry_source_sensor_data, telemetry_source_all,                    0b100000, 3),
-    TELEMETRY_SOURCE(telemetry_source_imu_data, telemetry_source_sensor_data,               0b010000, 3),
-    ///
-    // Unique Sources
-    ///
-
-    // Component State
-    TELEMETRY_SOURCE(telemetry_source_component_state, telemetry_source_all,                0b000000, 3),
-    TELEMETRY_ID(telemetry_id_component_state_update, telemetry_source_component_state,     0b000000),
-
-
-    // MS5611
-    TELEMETRY_SOURCE(telemetry_source_ms5611, telemetry_source_imu_data,                    0b010000, 5),
-    TELEMETRY_ID(telemetry_id_ms5611_config, telemetry_source_ms5611,                       0b010000),
-    TELEMETRY_ID(telemetry_id_ms5611_data, telemetry_source_ms5611,                         0b010001),
-
-    // MPU9250
-    TELEMETRY_SOURCE(telemetry_source_mpu9250, telemetry_source_imu_data,                   0b010010, 5),
-    TELEMETRY_ID(telemetry_id_mpu9250_config, telemetry_source_mpu9250,                     0b010010),
-    TELEMETRY_ID(telemetry_id_mpu9250_data, telemetry_source_mpu9250,                       0b010011),
-
-    // ADIS16405
-    TELEMETRY_SOURCE(telemetry_source_adis16405, telemetry_source_imu_data,                 0b010100, 5),
-    TELEMETRY_ID(telemetry_id_adis16405_config, telemetry_source_adis16405,                 0b010100),
-    TELEMETRY_ID(telemetry_id_adis16405_data, telemetry_source_adis16405,                   0b010101),
-
     // State Estimation
-    TELEMETRY_SOURCE(telemetry_source_state_estimation, telemetry_source_all,               0b011000, 3),
-    TELEMETRY_ID(telemetry_id_state_estimate_config, telemetry_source_state_estimation,     0b011000),
-    TELEMETRY_ID(telemetry_id_state_estimate_data, telemetry_source_state_estimation,       0b011001),
-    TELEMETRY_ID(telemetry_id_state_estimate_status, telemetry_source_state_estimation,     0b011010),
+    TELEMETRY_SOURCE(telemetry_source_state_estimation, telemetry_source_all,               0b001000, 3),
+    TELEMETRY_ID(telemetry_id_state_estimate_config, telemetry_source_state_estimation,     0b001000),
+    TELEMETRY_ID(telemetry_id_state_estimate_data, telemetry_source_state_estimation,       0b001001),
+    TELEMETRY_ID(telemetry_id_state_estimate_status, telemetry_source_state_estimation,     0b001010),
 
     // Calibration
-    TELEMETRY_SOURCE(telemetry_source_calibration, telemetry_source_all,                    0b101000, 3),
-    TELEMETRY_ID(telemetry_id_calibration_control, telemetry_source_calibration,            0b101000),
-    TELEMETRY_ID(telemetry_id_calibration_data, telemetry_source_calibration,               0b101001),
+    TELEMETRY_SOURCE(telemetry_source_calibration, telemetry_source_all,                    0b010000, 3),
+    TELEMETRY_ID(telemetry_id_calibration_control, telemetry_source_calibration,            0b010000),
+    TELEMETRY_ID(telemetry_id_calibration_data, telemetry_source_calibration,               0b010001),
+
+    // Component State
+    TELEMETRY_SOURCE(telemetry_source_component_state, telemetry_source_all,                0b011000, 3),
+    TELEMETRY_ID(telemetry_id_component_state_update, telemetry_source_component_state,     0b011000),
+
+    TELEMETRY_SOURCE(telemetry_source_imu_data, telemetry_source_all,                       0b100000, 1),
+
+    // MS5611
+    TELEMETRY_SOURCE(telemetry_source_ms5611, telemetry_source_imu_data,                    0b100000, 3),
+    TELEMETRY_ID(telemetry_id_ms5611_config, telemetry_source_ms5611,                       0b100000),
+    TELEMETRY_ID(telemetry_id_ms5611_data, telemetry_source_ms5611,                         0b100100),
+
+    // MPU9250
+    TELEMETRY_SOURCE(telemetry_source_mpu9250, telemetry_source_imu_data,                   0b101000, 3),
+    TELEMETRY_ID(telemetry_id_mpu9250_config, telemetry_source_mpu9250,                     0b101000),
+    TELEMETRY_ID(telemetry_id_mpu9250_data, telemetry_source_mpu9250,                       0b101100),
+
+    // ADIS16405
+    TELEMETRY_SOURCE(telemetry_source_adis16405, telemetry_source_imu_data,                 0b111000, 3),
+    TELEMETRY_ID(telemetry_id_adis16405_config, telemetry_source_adis16405,                 0b111000),
+    TELEMETRY_ID(telemetry_id_adis16405_data, telemetry_source_adis16405,                   0b111100),
+
 } telemetry_id_t;
 
 typedef enum {
