@@ -7,7 +7,7 @@ extern "C" {
 
 // We use the messaging system's metadata to store flags for interface drivers
 typedef enum {
-    message_flags_dont_send_over_can = 1 << 0,
+    message_flags_send_over_can = 1 << 0,
     message_flags_dont_send_over_usb = 1 << 1,
     message_flags_dont_send_over_rs232 = 1 << 2,
     message_flags_dont_send_over_radio = 1 << 3,

@@ -12,8 +12,8 @@ extern "C" {
 // Defines a telemetry source
 // TODO: Add system which generates error if prefix length not at least length of parent
 #define TELEMETRY_SOURCE(name, parent_name, id, prefix_length) \
-    name = id & (~(parent_name##_mask)), \
-    name##_mask = 0b11111111111 - ((1 << (6-prefix_length))-1)
+    name = ((id & (~(parent_name##_mask))) | parent_name), \
+    name##_mask = 0b111111 - ((1 << (6-prefix_length))-1)
 
 // Defines a packet from the given source
 #define TELEMETRY_ID(name, source, tag) \
@@ -33,7 +33,7 @@ typedef enum {
     // Calibration
     TELEMETRY_SOURCE(telemetry_source_calibration, telemetry_source_all,                    0b010000, 3),
     TELEMETRY_ID(telemetry_id_calibration_control, telemetry_source_calibration,            0b010000),
-    TELEMETRY_ID(telemetry_id_calibration_data, telemetry_source_calibration,               0b010001),
+    TELEMETRY_ID(telemetry_id_calibration_data, telemetry_source_calibration,               0b010100),
 
     // Component State
     TELEMETRY_SOURCE(telemetry_source_component_state, telemetry_source_all,                0b011000, 3),
