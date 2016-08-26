@@ -24,6 +24,9 @@ typedef enum {
     telemetry_source_all_mask = 0b000000,
     telemetry_source_packet_specific_mask = 0b111111,
 
+    TELEMETRY_ID(telemetry_id_can_msg_id, telemetry_source_all,                             0b111111),
+    TELEMETRY_ID(telemetry_id_can_status, telemetry_source_all,                             0b000000),
+
     // State Estimation
     TELEMETRY_SOURCE(telemetry_source_state_estimation, telemetry_source_all,               0b001000, 3),
     TELEMETRY_ID(telemetry_id_state_estimate_config, telemetry_source_state_estimation,     0b001000),

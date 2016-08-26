@@ -13,6 +13,5 @@ set (HEADERS ${HEADERS}
 	${CMAKE_CURRENT_SOURCE_DIR}/time_utils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/checksum.h
     ${CMAKE_CURRENT_SOURCE_DIR}/serial_interface.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/serial_interface.h
 	${CMAKE_CURRENT_SOURCE_DIR}/component_state.h
     PARENT_SCOPE)

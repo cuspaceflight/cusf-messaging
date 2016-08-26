@@ -39,6 +39,12 @@ telemetry_t* serial_interface_next_packet(serial_interface_t* serial_interface);
 // Will return false if there is an error
 bool serial_interface_send_packet(serial_interface_t* serial_interface, const telemetry_t* packet);
 
+
+// INTERNAL USAGE ONLY
+bool serial_interface_write_bytes_to_buffer(serial_interface_t* serial_interface, const uint8_t* data, uint32_t length);
+
+bool serial_interface_read_bytes_to_buffer(serial_interface_t* serial_interface, uint8_t* buffer, uint32_t length);
+
 #ifdef __cplusplus
 }
 #endif

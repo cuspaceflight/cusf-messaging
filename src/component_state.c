@@ -55,7 +55,7 @@ void component_state_update(avionics_component_t component, avionics_component_s
         packet.state = state;
         packet.line_number = line_number;
 
-        messaging_producer_send(&messaging_producer, 0, (uint8_t*)&packet);
+        messaging_producer_send(&messaging_producer, message_flags_send_over_can, (uint8_t*)&packet);
     }
 
     if (state == state_error && local_config.error_handler != NULL)
