@@ -18,6 +18,13 @@ typedef enum {
     avionics_component_max // This must be last
 } avionics_component_t;
 
+typedef enum {
+	state_ok = 0,
+	state_uninitialized = 1,
+	state_initializing = 2,
+	state_error = 3
+} avionics_component_state_t;
+
 #ifdef __cplusplus
 }
 #endif

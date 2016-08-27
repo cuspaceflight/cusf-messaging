@@ -8,13 +8,6 @@
 extern "C" {
 #endif
 
-typedef enum {
-    state_ok = 0,
-    state_uninitialized = 1,
-    state_initializing = 2,
-    state_error = 3
-} avionics_component_state_t;
-
 #define COMPONENT_STATE_UPDATE(component, state) component_state_update(component, state, __LINE__)
 
 // Should be called after the messaging system has been initialized

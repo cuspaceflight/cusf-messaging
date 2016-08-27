@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-typedef void(*avionics_error_handler_t)(avionics_component_t component, int line);
+typedef void(*avionics_component_state_update_handler_t)(avionics_component_t component, avionics_component_state_t state, int line);
 
 typedef struct avionics_config_t {
     // The origin of the local system
@@ -16,7 +16,7 @@ typedef struct avionics_config_t {
     // NB: This will be called from a variety of threads
     // and so should be a thread safe function
     // May be set to NULL
-    const avionics_error_handler_t error_handler;
+    const avionics_component_state_update_handler_t state_update_handler;
 } avionics_config_t;
 
 // This should be defined somewhere with the local configuration e.g in main.c

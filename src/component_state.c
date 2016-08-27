@@ -58,8 +58,8 @@ void component_state_update(avionics_component_t component, avionics_component_s
         messaging_producer_send(&messaging_producer, message_flags_send_over_can, (uint8_t*)&packet);
     }
 
-    if (state == state_error && local_config.error_handler != NULL)
-        local_config.error_handler(component, line_number);
+    if (local_config.state_update_handler != NULL)
+        local_config.state_update_handler(component, state, line_number);
 }
 
 const volatile uint8_t* component_state_get_states(void) {
