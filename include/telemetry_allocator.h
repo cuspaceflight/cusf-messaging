@@ -27,8 +27,8 @@ typedef struct telemetry_allocator_t {
     static telemetry_allocator_t name = {heap_size, NULL, NULL};
 #elif defined(MESSAGING_OS_CHIBIOS)
 #define TELEMETRY_ALLOCATOR(name, heap_size) \
-    static volatile char name##_buffer[heap_size] MEMORY_BUFFER_ATTRIBUTES; \
-    static telemetry_allocator_t name = {heap_size, name##_buffer, NULL};
+    static volatile char name##_buffer[(heap_size & ~0x0F) + 16] MEMORY_BUFFER_ATTRIBUTES; \
+    static telemetry_allocator_t name = {(heap_size & ~0x0F) + 16, name##_buffer, NULL};
 #else
 #error Unrecognised Messaging OS
 #endif

@@ -36,7 +36,7 @@ typedef enum {
     // Calibration
     TELEMETRY_SOURCE(telemetry_source_calibration, telemetry_source_all,                    0b010000, 3),
     TELEMETRY_ID(telemetry_id_calibration_control, telemetry_source_calibration,            0b010000),
-    TELEMETRY_ID(telemetry_id_calibration_data, telemetry_source_calibration,               0b010100),
+    TELEMETRY_ID(telemetry_id_calibration_magno_data, telemetry_source_calibration,         0b010100),
 
     // Component State
     TELEMETRY_SOURCE(telemetry_source_component_state, telemetry_source_all,                0b011000, 3),
@@ -45,9 +45,9 @@ typedef enum {
     TELEMETRY_SOURCE(telemetry_source_imu_data, telemetry_source_all,                       0b100000, 1),
 
     // MS5611
-    TELEMETRY_SOURCE(telemetry_source_ms5611, telemetry_source_imu_data,                    0b100000, 3),
-    TELEMETRY_ID(telemetry_id_ms5611_config, telemetry_source_ms5611,                       0b100000),
-    TELEMETRY_ID(telemetry_id_ms5611_data, telemetry_source_ms5611,                         0b100100),
+    TELEMETRY_SOURCE(telemetry_source_ms5611, telemetry_source_imu_data,                    0b111000, 3),
+    TELEMETRY_ID(telemetry_id_ms5611_config, telemetry_source_ms5611,                       0b111000),
+    TELEMETRY_ID(telemetry_id_ms5611_data, telemetry_source_ms5611,                         0b111100),
 
     // MPU9250
     TELEMETRY_SOURCE(telemetry_source_mpu9250, telemetry_source_imu_data,                   0b101000, 3),
@@ -55,9 +55,9 @@ typedef enum {
     TELEMETRY_ID(telemetry_id_mpu9250_data, telemetry_source_mpu9250,                       0b101100),
 
     // ADIS16405
-    TELEMETRY_SOURCE(telemetry_source_adis16405, telemetry_source_imu_data,                 0b111000, 3),
-    TELEMETRY_ID(telemetry_id_adis16405_config, telemetry_source_adis16405,                 0b111000),
-    TELEMETRY_ID(telemetry_id_adis16405_data, telemetry_source_adis16405,                   0b111100),
+    TELEMETRY_SOURCE(telemetry_source_adis16405, telemetry_source_imu_data,                 0b100000, 3),
+    TELEMETRY_ID(telemetry_id_adis16405_config, telemetry_source_adis16405,                 0b100000),
+    TELEMETRY_ID(telemetry_id_adis16405_data, telemetry_source_adis16405,                   0b100100),
 
 } telemetry_id_t;
 
