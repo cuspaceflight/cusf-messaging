@@ -30,7 +30,7 @@ typedef enum {
     // State Estimation
     TELEMETRY_SOURCE(telemetry_source_state_estimation, telemetry_source_all,               0b001000, 3),
     TELEMETRY_ID(telemetry_id_state_estimate_config, telemetry_source_state_estimation,     0b001000),
-    TELEMETRY_ID(telemetry_id_state_estimate_data, telemetry_source_state_estimation,       0b001001),
+    TELEMETRY_ID(telemetry_id_state_estimate_data, telemetry_source_state_estimation,       0b001100),
     TELEMETRY_ID(telemetry_id_state_estimate_status, telemetry_source_state_estimation,     0b001010),
 
     // Calibration
