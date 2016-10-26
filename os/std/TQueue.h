@@ -6,20 +6,26 @@
 template <class T> 
 class TQueue {
 public:
+    TQueue() : running(true) {
+
+    }
+
     void enqueue(T val) {
         std::lock_guard<std::mutex> lock(mutex_);
         queue_.push(val);
         condition_.notify_one();
     }
 
-    T dequeue() {
+    bool dequeue(T& ret) {
         std::unique_lock<std::mutex> lock(mutex_);
         while (queue_.empty()) {
             condition_.wait(lock);
+            if (!running)
+                return false;
         }
-        T val = queue_.front();
+        ret = queue_.front();
         queue_.pop();
-        return val;
+        return true;
     }
 
     bool isEmpty() {
@@ -27,8 +33,15 @@ public:
         return queue_.empty();
     }
 
+    bool close() {
+        std::unique_lock<std::mutex> lock(mutex_);
+        running = false;
+        condition_.notify_all();
+    }
+
 private:
     std::queue<T> queue_;
     mutable std::mutex mutex_;
     std::condition_variable condition_;
+    bool running;
 };

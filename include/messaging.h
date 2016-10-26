@@ -67,6 +67,9 @@ void messaging_resume_consumer(message_consumer_t* consumer);
 // The packet MUST have been allocated by the telemetry allocator component
 messaging_send_return_codes messaging_send(telemetry_t* packet, message_metadata_t flags);
 
+// Only implemented on std OS. Unblocks any messaging threads waiting on packets
+void messaging_consumer_terminate(message_consumer_t* consumer_id);
+
 #ifdef __cplusplus
 }
 #endif

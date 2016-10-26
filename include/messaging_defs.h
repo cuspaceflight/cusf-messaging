@@ -43,6 +43,7 @@ typedef enum {
     messaging_receive_buffer_empty, // No packets in buffer to process
     messaging_receive_invalid_consumer, // The consumer is invalid
     messaging_receive_callback_error, // consumer_func returned false
+    messaging_receive_terminate // The underlying buffer has been shutdown
 } messaging_receive_return_codes;
 
 

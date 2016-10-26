@@ -165,7 +165,9 @@ extern "C" messaging_receive_return_codes messaging_consumer_receive(message_con
     if (!blocking && consumer->impl->mailbox.isEmpty())
         return messaging_receive_buffer_empty;
 
-    auto ref = consumer->impl->mailbox.dequeue();
+    std::shared_ptr<TelemetryRef> ref;
+    if (!consumer->impl->mailbox.dequeue(ref))
+        return messaging_receive_terminate;
     if (!silent) {
         if (!consumer->consumer_func(ref->packet, ref->flags)) {
             return messaging_receive_callback_error;
@@ -183,4 +185,8 @@ void messaging_pause_consumer(message_consumer_t* consumer, bool flush_buffer) {
 
 void messaging_resume_consumer(message_consumer_t* consumer) {
     consumer->impl->is_paused = false;
+}
+
+void messaging_consumer_terminate(message_consumer_t *consumer_id) {
+    consumer_id->impl->mailbox.close();
 }
