@@ -8,6 +8,7 @@ extern "C" {
 #endif
 
 typedef void(*avionics_component_state_update_handler_t)(avionics_component_t component, avionics_component_state_t state, int line);
+typedef void(*avionics_can_send_t)(uint16_t msg_id, bool can_rtr, uint8_t* data, uint8_t datalen);
 
 typedef struct avionics_config_t {
     // The origin of the local system
@@ -17,6 +18,8 @@ typedef struct avionics_config_t {
     // and so should be a thread safe function
     // May be set to NULL
     const avionics_component_state_update_handler_t state_update_handler;
+
+    const avionics_can_send_t can_send;
 } avionics_config_t;
 
 // This should be defined somewhere with the local configuration e.g in main.c
