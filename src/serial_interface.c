@@ -89,8 +89,9 @@ static telemetry_t* serial_interface_read_frame(serial_interface_t* serial_inter
         return NULL;
 
     telemetry_t* packet = telemetry_allocator_alloc(serial_interface->telemetry_allocator, header.length);
-    if (packet == NULL)
+    if (packet == NULL) {
         return NULL;
+    }
 
 	serial_interface_read_bytes_to_buffer(serial_interface, packet->payload, header.length);
 

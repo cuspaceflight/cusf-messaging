@@ -33,7 +33,7 @@ public:
         return queue_.empty();
     }
 
-    bool close() {
+    void close() {
         std::unique_lock<std::mutex> lock(mutex_);
         running = false;
         condition_.notify_all();
