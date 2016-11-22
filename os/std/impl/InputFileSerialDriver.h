@@ -12,5 +12,5 @@ public:
 
 private:
     std::thread thread_;
-    std::ifstream input_stream_;
+    std::unique_ptr<std::ifstream> input_stream_;
 };

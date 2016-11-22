@@ -47,15 +47,13 @@ static void reader_thread() {
 OutputFileSerialDriver::OutputFileSerialDriver(const char* filename) {
     UtilAssert(!is_initialised, "Only one serial driver can be active at once");
 
-
-
-    output_stream = std::ofstream(filename, std::ofstream::binary | std::ofstream::out);
+    output_stream = std::make_unique<std::ofstream>(filename, std::ofstream::binary | std::ofstream::out);
     write_buffer_index = 0;
 
-    if (output_stream) {
+    if (output_stream && *output_stream) {
 
         is_initialised = true;
-        s_stream = &output_stream;
+        s_stream = output_stream.get();
 
         messaging_consumer_init(&messaging_consumer);
         serial_interface_init(&serial_interface);
@@ -77,5 +75,5 @@ OutputFileSerialDriver::~OutputFileSerialDriver() {
 }
 
 bool OutputFileSerialDriver::getConnected() {
-    return is_initialised && output_stream;
+    return is_initialised && output_stream && *output_stream;
 }

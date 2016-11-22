@@ -43,13 +43,13 @@ static void writer_thread() {
 InputFileSerialDriver::InputFileSerialDriver(const char* filename) {
     UtilAssert(!is_initialised, "Only one serial driver can be active at once");
 
-    input_stream_ = std::ifstream(filename, std::ifstream::binary | std::ifstream::in);
+    input_stream_ = std::make_unique<std::ifstream>(filename, std::ifstream::binary | std::ifstream::in);
     read_buffer_index = 0;
 
-    if (input_stream_) {
+    if (input_stream_ && *input_stream_) {
 
         is_initialised = true;
-        s_stream = &input_stream_;
+        s_stream = input_stream_.get();
 
         serial_interface_init(&serial_interface);
 
