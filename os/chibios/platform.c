@@ -26,3 +26,11 @@ inline void memory_barrier_release(void) {
 void platform_set_thread_name(const char* name) {
     chRegSetThreadName(name);
 }
+
+void platform_halt() {
+    chSysHalt();
+}
+
+void platform_thread_yield() {
+    chThdYield();
+}

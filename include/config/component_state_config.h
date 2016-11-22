@@ -23,7 +23,7 @@ typedef enum {
 	state_ok = 0,
 	state_uninitialized = 1,
 	state_initializing = 2,
-	state_error = 3
+	state_error = 3z
 } avionics_component_state_t;
 
 #ifdef __cplusplus

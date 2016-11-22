@@ -1,5 +1,6 @@
 #include "platform.h"
 #include <atomic>
+#include <stdlib.h>
 
 uint32_t counter_value = 0;
 
@@ -27,4 +28,12 @@ extern "C" void memory_barrier_release(void) {
 
 void platform_set_thread_name(const char* name) {
     
+}
+
+void platform_thread_yield() {
+
+}
+
+void platform_halt() {
+    exit(EXIT_FAILURE);
 }

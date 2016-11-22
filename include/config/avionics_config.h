@@ -19,6 +19,8 @@ typedef struct avionics_config_t {
     // May be set to NULL
     const avionics_component_state_update_handler_t state_update_handler;
 
+    // Used to send data over a CAN bus
+    // May be set to NULL
     const avionics_can_send_t can_send;
 } avionics_config_t;
 

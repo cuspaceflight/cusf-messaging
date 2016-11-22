@@ -57,6 +57,12 @@ static volatile bool can_interface_initialized = false;
 TELEMETRY_ALLOCATOR(can_telemetry_allocator, 1024);
 
 void can_interface_init() {
+    if (local_config.can_send == NULL) {
+        COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
+        platform_halt();
+    }
+
+
 	telemetry_allocator_init(&can_telemetry_allocator);
 	COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_ok);
 
