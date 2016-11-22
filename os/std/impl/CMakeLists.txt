@@ -1,0 +1,9 @@
+
+set (SOURCES ${SOURCES}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CanSerialDriver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/SerialDriver.cpp
+    PARENT_SCOPE)
+
+set (HEADERS ${HEADERS}
+	${CMAKE_CURRENT_SOURCE_DIR}/TQueue.h
+    PARENT_SCOPE)

@@ -1,7 +1,7 @@
 #include "messaging.h"
 #include <string.h>
 #include "platform.h"
-#include <TQueue.h>
+#include "impl/TQueue.h"
 #include <atomic>
 #include "component_state.h"
 #include "avionics_config.h"

@@ -11,6 +11,9 @@ if (NOT DEFINED MESSAGING_OS)
 	message(FATAL_ERROR "MESSAGING_OS not defined")
 elseif (${MESSAGING_OS} STREQUAL std)
     add_subdirectory(os/std)
+    add_subdirectory(external/serial)
+    set(OS_LIBS serial)
+    set(OS_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/external/serial/include)
 elseif (${MESSAGING_OS} STREQUAL chibios)
     add_subdirectory(os/chibios)
 else (NOT DEFINED MESSAGING_OS)
@@ -19,15 +22,10 @@ endif (NOT DEFINED MESSAGING_OS)
 
 add_library(messaging ${HEADERS} ${SOURCES})
 
-
-message(STATUS "${ChibiOS_INCLUDE_DIRS}")
-SET (MESSAGING_INCLUDES
-        ${ChibiOS_INCLUDE_DIRS}
+target_include_directories ( messaging PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/config
         ${OS_INCLUDES}
 )
 
-target_include_directories ( messaging PUBLIC
-    ${MESSAGING_INCLUDES}
-)
+target_link_libraries(messaging PRIVATE ${OS_LIBS})
