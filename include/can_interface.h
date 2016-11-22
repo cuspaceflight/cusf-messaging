@@ -8,11 +8,17 @@
 extern "C" {
 #endif
 
-void can_interface_init(void);
+typedef void(*can_interface_send_t)(uint16_t msg_id, bool can_rtr, uint8_t* data, uint8_t datalen);
 
-bool can_send_telemetry(const telemetry_t* packet, message_metadata_t metadata);
+typedef struct can_interface_t {
+    const can_interface_send_t can_send;
+} can_interface_t;
 
-void can_recv(uint16_t msg_id, bool can_rtr, uint8_t* data, uint8_t datalen);
+void can_interface_init(can_interface_t* interface);
+
+bool can_interface_send(can_interface_t* interface, const telemetry_t* packet, message_metadata_t metadata);
+
+void can_interface_receive(can_interface_t* id, uint16_t msg_id, bool can_rtr, uint8_t* data, uint8_t datalen);
 
 #ifdef __cplusplus
 }

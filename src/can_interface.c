@@ -56,13 +56,7 @@ static volatile bool can_interface_initialized = false;
 
 TELEMETRY_ALLOCATOR(can_telemetry_allocator, 1024);
 
-void can_interface_init() {
-    if (local_config.can_send == NULL) {
-        COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
-        platform_halt();
-    }
-
-
+void can_interface_init(can_interface_t* id) {
 	telemetry_allocator_init(&can_telemetry_allocator);
 	COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_ok);
 
@@ -92,7 +86,7 @@ static multipacket_message_t* getMultipacket(uint16_t telemetry_id) {
 	return NULL;
 }
 
-void can_recv(uint16_t can_msg_id, bool can_rtr, uint8_t *data, uint8_t datalen) {
+void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool can_rtr, uint8_t *data, uint8_t datalen) {
 	(void)can_rtr;
 	if (!can_interface_initialized)
 		return;
@@ -143,11 +137,11 @@ void can_recv(uint16_t can_msg_id, bool can_rtr, uint8_t *data, uint8_t datalen)
 	}
 }
 
-bool can_send_telemetry(const telemetry_t* packet, message_metadata_t metadata) {
+bool can_interface_send(can_interface_t* interface, const telemetry_t* packet, message_metadata_t metadata) {
     (void)metadata;
     if (packet->header.origin == local_config.origin) {
         if (packet->header.length <= 8) {
-            local_config.can_send((packet->header.id << 5) | local_config.origin, false, packet->payload, packet->header.length);
+			interface->can_send((packet->header.id << 5) | local_config.origin, false, packet->payload, packet->header.length);
             return true;
         }
 
@@ -167,7 +161,7 @@ bool can_send_telemetry(const telemetry_t* packet, message_metadata_t metadata) 
         int remaining = packet->header.length;
         int i = 0;
         do {
-            local_config.can_send(((packet->header.id+i) << 5) | local_config.origin, false, ptr, remaining > 8 ? 8 : remaining);
+			interface->can_send(((packet->header.id+i) << 5) | local_config.origin, false, ptr, remaining > 8 ? 8 : remaining);
             ptr += 8;
             i++;
             remaining -= 8;

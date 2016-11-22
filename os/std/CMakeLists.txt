@@ -1,8 +1,10 @@
 
 set (SOURCES ${SOURCES}
-	${CMAKE_CURRENT_SOURCE_DIR}/messaging.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/platform.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/telemetry_allocator.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/messaging.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/platform.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/telemetry_allocator.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/can_telemetry.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/usb_telemetry.c
     PARENT_SCOPE)
 
 set (HEADERS ${HEADERS}

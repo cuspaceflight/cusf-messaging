@@ -24,8 +24,6 @@ uint32_t platform_get_counter_value(void);
 
 void platform_set_counter_value(uint32_t value);
 
-void platform_halt();
-
 uint32_t platform_get_counter_frequency(void);
 
 void platform_set_thread_name(const char* name);

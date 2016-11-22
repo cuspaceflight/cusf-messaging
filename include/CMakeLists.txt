@@ -16,4 +16,5 @@ set (HEADERS ${HEADERS}
         ${CMAKE_CURRENT_SOURCE_DIR}/component_state.h
         ${CMAKE_CURRENT_SOURCE_DIR}/can_interface.h
         ${CMAKE_CURRENT_SOURCE_DIR}/can_telemetry.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/usb_telemetry.h
         PARENT_SCOPE)

@@ -33,7 +33,3 @@ void platform_set_thread_name(const char* name) {
 void platform_thread_yield() {
 
 }
-
-void platform_halt() {
-    exit(EXIT_FAILURE);
-}
