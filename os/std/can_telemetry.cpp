@@ -9,14 +9,6 @@ void can_telemetry_start(void) {
     driver = std::make_unique<CanSerialDriver>("COM3", 38400);
 }
 
-void can_telemetry_transmit_thread(void* arg) {
-    // Handled by CanSerialDriver
-}
-
-void can_telemetry_receive_thread(void* arg) {
-    // Handled by CanSerialDriver
-}
-
 bool can_telemetry_connected(void) {
     return driver->getConnected();
 }

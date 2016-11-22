@@ -3,7 +3,7 @@ A messaging system allowing seamless inter and intra board communication between
 
 ## Installation
 
-See [INSTALL.md](INSTALL.md) for compilation instructions.
+See [Spalax](https://github.com/cuspaceflight/spalax) for an example of how to integrate with your project.
 
 ## Configuration
 

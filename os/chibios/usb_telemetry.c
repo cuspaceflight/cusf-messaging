@@ -8,6 +8,9 @@
 
 #if (HAL_USE_USB == TRUE)
 
+static THD_WORKING_AREA(waUSBTransmit, 512);
+static THD_WORKING_AREA(waUSBReceive, 512);
+
 extern const USBConfig usbcfg;
 extern SerialUSBConfig serusbcfg;
 
@@ -64,6 +67,9 @@ void usb_telemetry_start(void) {
 
     memory_barrier_release();
     is_initialised = true;
+
+    chThdCreateStatic(waUSBReceive, sizeof(waUSBReceive), NORMALPRIO, usb_telemetry_receive_thread, NULL);
+    chThdCreateStatic(waUSBTransmit, sizeof(waUSBTransmit), NORMALPRIO, usb_telemetry_transmit_thread, NULL);
 }
 
 void usb_telemetry_transmit_thread(void *arg) {

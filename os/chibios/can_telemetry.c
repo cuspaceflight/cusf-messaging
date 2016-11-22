@@ -10,6 +10,9 @@
 
 #if (HAL_USE_CAN == TRUE)
 
+static THD_WORKING_AREA(waCanTelemetryTransmit, 512);
+static THD_WORKING_AREA(waCanTelemetryReceive, 512);
+
 static const CANConfig cancfg = {
         .mcr =
         /* Automatic Bus Off Management enabled,
@@ -52,13 +55,6 @@ static bool can_send_telemetry(const telemetry_t* packet, message_metadata_t met
 
 MESSAGING_CONSUMER(can_telemetry_messaging_consumer, 0, 0, message_flags_send_over_can, message_flags_send_over_can, can_send_telemetry, 20);
 
-void can_telemetry_start(void) {
-    canStart(&CAND1, &cancfg);
-
-    can_interface_init(&interface);
-    messaging_consumer_init(&can_telemetry_messaging_consumer);
-}
-
 void can_telemetry_transmit_thread(void* arg) {
     (void)arg;
     while (true) {
@@ -85,6 +81,16 @@ void can_telemetry_receive_thread(void* arg) {
             can_interface_receive(&interface, rxmsg.SID, rxmsg.RTR, rxmsg.data8, rxmsg.DLC);
         }
     }
+}
+
+void can_telemetry_start(void) {
+    canStart(&CAND1, &cancfg);
+
+    can_interface_init(&interface);
+    messaging_consumer_init(&can_telemetry_messaging_consumer);
+
+    chThdCreateStatic(waCanTelemetryTransmit, sizeof(waCanTelemetryTransmit), NORMALPRIO, can_telemetry_transmit_thread, NULL);
+    chThdCreateStatic(waCanTelemetryReceive, sizeof(waCanTelemetryReceive), NORMALPRIO, can_telemetry_receive_thread, NULL);
 }
 
 bool can_telemetry_connected(void) {

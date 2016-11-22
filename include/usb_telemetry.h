@@ -9,10 +9,6 @@ extern "C" {
 
 void usb_telemetry_start(void);
 
-void usb_telemetry_receive_thread(void *arg);
-
-void usb_telemetry_transmit_thread(void *arg);
-
 bool usb_telemetry_connected(void);
 
 #ifdef __cplusplus
