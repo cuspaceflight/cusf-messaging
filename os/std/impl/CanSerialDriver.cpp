@@ -19,7 +19,6 @@ static uint8_t read_buffer[READ_BUFFER_SIZE];
 static uint8_t write_buffer[WRITE_BUFFER_SIZE];
 
 static bool is_initialised = false;
-static CanSerialDriver* s_instance = nullptr;
 static serial::Serial* s_port = nullptr;
 
 static uint8_t stream_get() {
@@ -65,7 +64,7 @@ SERIAL_INTERFACE(serial_interface, stream_get, stream_put, stream_flush, 1024);
 void can_send(uint16_t msg_id, bool can_rtr, uint8_t* data, uint8_t datalen) {
 	can_header_t header;
 	header.id = msg_id;
-	header.rtr = can_rtr ? 1 : 0;
+	header.rtr = (uint8_t) (can_rtr ? 1 : 0);
 	header.dlc = datalen;
 
 	if (!serial_interface.stream_put(0x7E)) {
@@ -94,7 +93,7 @@ static bool receive_packet(const telemetry_t* packet, message_metadata_t metadat
 
 MESSAGING_CONSUMER(messaging_consumer, 0, 0, message_flags_send_over_can, message_flags_send_over_can, receive_packet, 100);
 
-static void reader_thread(CanSerialDriver* driver) {
+static void reader_thread() {
 	while (s_port != nullptr) {
 		messaging_consumer_receive(&messaging_consumer, true, false);
 	}
@@ -110,18 +109,16 @@ bool read_can_frame() {
 		return false;
 	}
 
-	can_interface_receive(&can_interface, header.id, header.rtr == 1 ? true : false, data, header.dlc);
+	can_interface_receive(&can_interface, header.id, header.rtr == 1, data, header.dlc);
 	return true;
 }
 
 static bool handle_next_can_packet() {
 	while (serial_interface.stream_get() != 0x7E) {}
-	if (!read_can_frame())
-		return false;
-	return true;
+    return read_can_frame();
 }
 
-static void writer_thread(CanSerialDriver* driver) {
+static void writer_thread() {
 	while (s_port != nullptr) {
 		handle_next_can_packet();
 	}
@@ -142,8 +139,6 @@ CanSerialDriver::CanSerialDriver(const char* port_name, int baud_rate) {
 	}
 
 	if (serial_port_ != nullptr && serial_port_->isOpen()) {
-		s_instance = this;
-
 		is_initialised = true;
 		s_port = serial_port_.get();
 
@@ -151,8 +146,8 @@ CanSerialDriver::CanSerialDriver(const char* port_name, int baud_rate) {
 		serial_interface_init(&serial_interface);
 		can_interface_init(&can_interface);
 
-		writer_thread_ = std::thread(writer_thread, this);
-		reader_thread_ = std::thread(reader_thread, this);
+		writer_thread_ = std::thread(writer_thread);
+		reader_thread_ = std::thread(reader_thread);
 	}
 }
 
@@ -162,7 +157,6 @@ CanSerialDriver::~CanSerialDriver() {
 
 	is_initialised = false;
 	s_port = nullptr;
-	s_instance = nullptr;
 
 	messaging_consumer_terminate(&messaging_consumer);
 

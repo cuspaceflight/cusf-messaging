@@ -17,6 +17,10 @@ typedef struct avionics_config_t {
     // and so should be a thread safe function
     // May be set to NULL
     const avionics_component_state_update_handler_t state_update_handler;
+
+    const char* input_file_name;
+
+    const char* output_file_name;
 } avionics_config_t;
 
 // This should be defined somewhere with the local configuration e.g in main.c

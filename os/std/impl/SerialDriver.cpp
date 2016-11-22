@@ -17,7 +17,6 @@ static uint8_t read_buffer[READ_BUFFER_SIZE];
 static uint8_t write_buffer[WRITE_BUFFER_SIZE];
 
 static bool is_initialised = false;
-static SerialDriver* s_instance = nullptr;
 static serial::Serial* s_port = nullptr;
 
 static uint8_t stream_get() {
@@ -26,7 +25,7 @@ static uint8_t stream_get() {
 			// Trigger termination of the read
 			return 0x7E;
 		}
-		read_buffer_limit = s_port->read(read_buffer, READ_BUFFER_SIZE);
+		read_buffer_limit = (unsigned int) s_port->read(read_buffer, READ_BUFFER_SIZE);
 		read_buffer_index = 0;
 		if (read_buffer_index >= read_buffer_limit)
 			std::this_thread::sleep_for(std::chrono::milliseconds(5));
@@ -62,13 +61,13 @@ static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) 
 
 MESSAGING_CONSUMER(messaging_consumer, 0, 0, 0, message_flags_dont_send_over_usb, receive_packet, 100);
 
-static void reader_thread(SerialDriver* driver) {
+static void reader_thread() {
 	while (s_port != nullptr) {
 		messaging_consumer_receive(&messaging_consumer, true, false);
 	}
 }
 
-static void writer_thread(SerialDriver* driver) {
+static void writer_thread() {
 	while (s_port != nullptr) {
 		telemetry_t* packet = serial_interface_next_packet(&serial_interface);
 		if (packet != nullptr)
@@ -78,7 +77,6 @@ static void writer_thread(SerialDriver* driver) {
 
 SerialDriver::SerialDriver(const char* port_name, int baud_rate) {
 	UtilAssert(!is_initialised, "Only one serial driver can be active at once");
-
 
 	serial::Timeout timeout(0, 10, 0, 0, 0);
 
@@ -91,7 +89,6 @@ SerialDriver::SerialDriver(const char* port_name, int baud_rate) {
 	}
 
 	if (serial_port_ != nullptr && serial_port_->isOpen()) {
-		s_instance = this;
 
 		is_initialised = true;
 		s_port = serial_port_.get();
@@ -99,8 +96,8 @@ SerialDriver::SerialDriver(const char* port_name, int baud_rate) {
 		messaging_consumer_init(&messaging_consumer);
 		serial_interface_init(&serial_interface);
 
-		writer_thread_ = std::thread(writer_thread, this);
-		reader_thread_ = std::thread(reader_thread, this);
+		writer_thread_ = std::thread(writer_thread);
+		reader_thread_ = std::thread(reader_thread);
 	}
 }
 
@@ -110,7 +107,6 @@ SerialDriver::~SerialDriver() {
 
 	is_initialised = false;
 	s_port = nullptr;
-	s_instance = nullptr;
 
     messaging_consumer_terminate(&messaging_consumer);
 
@@ -122,5 +118,5 @@ SerialDriver::~SerialDriver() {
 }
 
 bool SerialDriver::getConnected() {
-	return is_initialised;
+	return is_initialised && serial_port_ && serial_port_->isOpen();
 }

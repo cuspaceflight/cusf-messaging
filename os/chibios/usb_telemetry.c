@@ -49,29 +49,6 @@ static bool transmit_packet(const telemetry_t* packet, message_metadata_t metada
 
 static volatile bool is_initialised = false;
 
-void usb_telemetry_start(void) {
-    sduObjectInit(&SDU1);
-    sduStart(&SDU1, &serusbcfg);
-
-    // Activates the USB driver and then the USB bus pull-up on D+.
-    // Note, a delay is inserted in order to not have to disconnect the cable
-    // after a reset.
-    usbDisconnectBus(serusbcfg.usbp);
-    chThdSleepMilliseconds(1000);
-    usbStart(serusbcfg.usbp, &usbcfg);
-    usbConnectBus(serusbcfg.usbp);
-
-    messaging_consumer_init(&usb_telemetry_messaging_consumer);
-    serial_interface_init(&serial_interface);
-    messaging_pause_consumer(&usb_telemetry_messaging_consumer, true);
-
-    memory_barrier_release();
-    is_initialised = true;
-
-    chThdCreateStatic(waUSBReceive, sizeof(waUSBReceive), NORMALPRIO, usb_telemetry_receive_thread, NULL);
-    chThdCreateStatic(waUSBTransmit, sizeof(waUSBTransmit), NORMALPRIO, usb_telemetry_transmit_thread, NULL);
-}
-
 void usb_telemetry_transmit_thread(void *arg) {
     (void)arg;
     chRegSetThreadName("USB Telemetry Transmit");
@@ -121,6 +98,29 @@ void usb_telemetry_receive_thread(void* arg) {
             chThdSleepMilliseconds(500);
         }
     }
+}
+
+void usb_telemetry_start(void) {
+    sduObjectInit(&SDU1);
+    sduStart(&SDU1, &serusbcfg);
+
+    // Activates the USB driver and then the USB bus pull-up on D+.
+    // Note, a delay is inserted in order to not have to disconnect the cable
+    // after a reset.
+    usbDisconnectBus(serusbcfg.usbp);
+    chThdSleepMilliseconds(1000);
+    usbStart(serusbcfg.usbp, &usbcfg);
+    usbConnectBus(serusbcfg.usbp);
+
+    messaging_consumer_init(&usb_telemetry_messaging_consumer);
+    serial_interface_init(&serial_interface);
+    messaging_pause_consumer(&usb_telemetry_messaging_consumer, true);
+
+    memory_barrier_release();
+    is_initialised = true;
+
+    chThdCreateStatic(waUSBReceive, sizeof(waUSBReceive), NORMALPRIO, usb_telemetry_receive_thread, NULL);
+    chThdCreateStatic(waUSBTransmit, sizeof(waUSBTransmit), NORMALPRIO, usb_telemetry_transmit_thread, NULL);
 }
 
 bool usb_telemetry_connected(void) {
