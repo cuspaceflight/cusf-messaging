@@ -9,6 +9,8 @@ class CanSerialDriver {
 public:
     explicit CanSerialDriver(const char* port_name, int baud_rate);
     ~CanSerialDriver();
+
+    bool getConnected();
 private:
     std::unique_ptr<serial::Serial> serial_port_;
 

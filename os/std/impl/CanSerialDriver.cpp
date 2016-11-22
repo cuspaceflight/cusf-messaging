@@ -172,3 +172,7 @@ CanSerialDriver::~CanSerialDriver() {
 	serial_port_->close();
 	serial_port_.reset();
 }
+
+bool CanSerialDriver::getConnected() {
+    return is_initialised;
+}

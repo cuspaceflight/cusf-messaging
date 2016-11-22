@@ -16,3 +16,7 @@ void usb_telemetry_transmit_thread(void* arg) {
 void usb_telemetry_receive_thread(void* arg) {
     // Handled by CanSerialDriver
 }
+
+bool usb_telemetry_connected(void) {
+    return driver->getConnected();
+}

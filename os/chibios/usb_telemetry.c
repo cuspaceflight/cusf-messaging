@@ -117,4 +117,8 @@ void usb_telemetry_receive_thread(void* arg) {
     }
 }
 
+bool usb_telemetry_connected(void) {
+    return serusbcfg.usbp->state == USB_ACTIVE;
+}
+
 #endif

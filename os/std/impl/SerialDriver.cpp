@@ -121,6 +121,6 @@ SerialDriver::~SerialDriver() {
 	serial_port_.reset();
 }
 
-bool SerialDriver::getInitialized() {
+bool SerialDriver::getConnected() {
 	return is_initialised;
 }

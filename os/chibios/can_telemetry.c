@@ -87,4 +87,8 @@ void can_telemetry_receive_thread(void* arg) {
     }
 }
 
+bool can_telemetry_connected(void) {
+    return true; // As CAN is connectionless this is always true
+}
+
 #endif

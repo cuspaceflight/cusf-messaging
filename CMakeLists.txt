@@ -1,9 +1,3 @@
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-    # Enable warnings
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -Werror")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-long-long -Werror")
-endif()
-
 add_subdirectory(include)
 add_subdirectory(src)
 
@@ -16,9 +10,16 @@ elseif (${MESSAGING_OS} STREQUAL std)
     set(OS_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/external/serial/include)
 elseif (${MESSAGING_OS} STREQUAL chibios)
     add_subdirectory(os/chibios)
+    set(OS_INCLUDES ${ChibiOS_INCLUDE_DIRS})
 else (NOT DEFINED MESSAGING_OS)
     message(FATAL_ERROR "Unrecognised MESSAGING_OS")
 endif (NOT DEFINED MESSAGING_OS)
+
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+    # Enable warnings
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -Werror")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-long-long -Werror")
+endif()
 
 add_library(messaging ${HEADERS} ${SOURCES})
 

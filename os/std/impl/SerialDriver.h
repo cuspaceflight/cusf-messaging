@@ -10,7 +10,7 @@ public:
     explicit SerialDriver(const char* port_name, int baud_rate);
     ~SerialDriver();
 
-    bool getInitialized();
+    bool getConnected();
 private:
     std::unique_ptr<serial::Serial> serial_port_;
 
