@@ -20,7 +20,7 @@ static uint8_t stream_get() {
             // Trigger termination of the read
             return 0x7E;
         }
-        read_buffer_limit = s_stream->readsome((char *) read_buffer, READ_BUFFER_SIZE);
+        read_buffer_limit = (unsigned int) s_stream->readsome((char *) read_buffer, READ_BUFFER_SIZE);
         read_buffer_index = 0;
         if (read_buffer_index >= read_buffer_limit)
             std::this_thread::sleep_for(std::chrono::milliseconds(5));

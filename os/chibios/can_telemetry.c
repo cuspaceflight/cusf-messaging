@@ -8,7 +8,7 @@
 
 #include <string.h>
 
-#if (HAL_USE_CAN == TRUE)
+#if CAN_TELEMETRY_ENABLED
 
 static THD_WORKING_AREA(waCanTelemetryTransmit, 512);
 static THD_WORKING_AREA(waCanTelemetryReceive, 512);

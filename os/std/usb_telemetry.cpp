@@ -2,6 +2,8 @@
 #include "impl/SerialDriver.h"
 #include "impl/Utils.h"
 
+#if USB_TELEMETRY_ENABLED
+
 static std::unique_ptr<SerialDriver> driver;
 
 void usb_telemetry_start(void) {
@@ -14,3 +16,5 @@ void usb_telemetry_start(void) {
 bool usb_telemetry_connected(void) {
     return driver != nullptr && driver->getConnected();
 }
+
+#endif

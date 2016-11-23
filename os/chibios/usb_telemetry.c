@@ -6,7 +6,7 @@
 #include "avionics_config.h"
 #include "platform.h"
 
-#if (HAL_USE_USB == TRUE)
+#if USB_TELEMETRY_ENABLED
 
 static THD_WORKING_AREA(waUSBTransmit, 512);
 static THD_WORKING_AREA(waUSBReceive, 512);

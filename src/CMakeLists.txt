@@ -4,6 +4,7 @@ set (SOURCES ${SOURCES}
 		${CMAKE_CURRENT_SOURCE_DIR}/checksum.c
 		${CMAKE_CURRENT_SOURCE_DIR}/serial_interface.c
 		${CMAKE_CURRENT_SOURCE_DIR}/can_interface.c
+		${CMAKE_CURRENT_SOURCE_DIR}/messaging_all.c
     PARENT_SCOPE)
 
 set (HEADERS ${HEADERS}

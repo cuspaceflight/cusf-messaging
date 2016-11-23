@@ -2,6 +2,8 @@
 #include "impl/CanSerialDriver.h"
 #include "impl/Utils.h"
 
+#if CAN_TELEMETRY_ENABLED
+
 static std::unique_ptr<CanSerialDriver> driver;
 
 void can_telemetry_start(void) {
@@ -15,3 +17,5 @@ void can_telemetry_start(void) {
 bool can_telemetry_connected(void) {
     return driver != nullptr && driver->getConnected();
 }
+
+#endif
