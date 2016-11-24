@@ -68,5 +68,5 @@ InputFileSerialDriver::~InputFileSerialDriver() {
 }
 
 bool InputFileSerialDriver::getConnected() {
-    return is_initialised && input_stream_;
+    return is_initialised && input_stream_ && *input_stream_;
 }
