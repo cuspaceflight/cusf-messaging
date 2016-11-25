@@ -16,11 +16,12 @@ static std::ifstream* s_stream = nullptr;
 
 static uint8_t stream_get() {
     while (read_buffer_index >= read_buffer_limit) {
-        if (s_stream == nullptr) {
+        if (s_stream == nullptr || !*s_stream) {
             // Trigger termination of the read
             return 0x7E;
         }
-        read_buffer_limit = (unsigned int) s_stream->readsome((char *) read_buffer, READ_BUFFER_SIZE);
+        s_stream->read((char *)read_buffer, READ_BUFFER_SIZE);
+        read_buffer_limit = (unsigned int) s_stream->gcount();
         read_buffer_index = 0;
         if (read_buffer_index >= read_buffer_limit)
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
@@ -33,7 +34,7 @@ static uint8_t stream_get() {
 SERIAL_INTERFACE(serial_interface, stream_get, nullptr, nullptr, 1024);
 
 static void writer_thread() {
-    while (s_stream != nullptr) {
+    while (s_stream && *s_stream) {
         telemetry_t* packet = serial_interface_next_packet(&serial_interface);
         if (packet != nullptr)
             messaging_send(packet, message_flags_dont_send_to_file);
