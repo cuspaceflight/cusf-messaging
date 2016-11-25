@@ -1,6 +1,6 @@
 #include "usb_telemetry.h"
 #include "impl/SerialDriver.h"
-#include "impl/Utils.h"
+#include "cpp_utils.h"
 
 #if USB_TELEMETRY_ENABLED
 

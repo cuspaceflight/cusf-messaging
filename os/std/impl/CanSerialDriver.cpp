@@ -2,11 +2,9 @@
 #include "serial_interface.h"
 #include "messaging.h"
 #include <avionics_config.h>
-#include "messaging_config.h"
 #include <serial/serial.h>
-#include <component_state.h>
 #include "can_interface.h"
-#include "Utils.h"
+#include "cpp_utils.h"
 
 #define READ_BUFFER_SIZE 255
 #define WRITE_BUFFER_SIZE 255

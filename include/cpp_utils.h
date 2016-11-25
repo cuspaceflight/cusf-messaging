@@ -1,4 +1,6 @@
 #pragma once
+#ifdef __cplusplus
+
 #include <memory>
 #include <printf.h>
 #include <exception>
@@ -23,6 +25,4 @@ namespace std {
 #endif
 #endif
 
-
-
-
+#endif

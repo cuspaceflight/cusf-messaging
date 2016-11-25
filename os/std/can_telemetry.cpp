@@ -1,6 +1,6 @@
 #include "can_telemetry.h"
 #include "impl/CanSerialDriver.h"
-#include "impl/Utils.h"
+#include "cpp_utils.h"
 
 #if CAN_TELEMETRY_ENABLED
 
