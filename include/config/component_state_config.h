@@ -16,6 +16,7 @@ typedef enum {
     avionics_component_calibration,
 	avionics_component_can_telemetry,
     avionics_component_world_mag_model,
+	avionics_component_ublox,
     avionics_component_max // This must be last
 } avionics_component_t;
 
