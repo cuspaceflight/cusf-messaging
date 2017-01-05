@@ -33,11 +33,6 @@ typedef enum {
     TELEMETRY_ID(telemetry_id_state_estimate_data, telemetry_source_state_estimation,       0b001100),
     TELEMETRY_ID(telemetry_id_state_estimate_status, telemetry_source_state_estimation,     0b001010),
 
-    // Calibration
-    TELEMETRY_SOURCE(telemetry_source_calibration, telemetry_source_all,                    0b010000, 3),
-    TELEMETRY_ID(telemetry_id_calibration_control, telemetry_source_calibration,            0b010000),
-    TELEMETRY_ID(telemetry_id_calibration_magno_data, telemetry_source_calibration,         0b010100),
-
     // Component State
     TELEMETRY_SOURCE(telemetry_source_component_state, telemetry_source_all,                0b011000, 3),
     TELEMETRY_ID(telemetry_id_component_state_update, telemetry_source_component_state,     0b011000),

@@ -1,4 +1,4 @@
-#include "OutputFileSerialDriver.h"
+#include "OutputFileDriver.h"
 #include "serial_interface.h"
 #include "messaging.h"
 #include "cpp_utils.h"
@@ -44,7 +44,7 @@ static void reader_thread() {
     }
 }
 
-OutputFileSerialDriver::OutputFileSerialDriver(const char* filename) {
+OutputFileDriver::OutputFileDriver(const char* filename) {
     UtilAssert(!is_initialised, "Only one serial driver can be active at once");
 
     output_stream = std::make_unique<std::ofstream>(filename, std::ofstream::binary | std::ofstream::out);
@@ -62,7 +62,7 @@ OutputFileSerialDriver::OutputFileSerialDriver(const char* filename) {
     }
 }
 
-OutputFileSerialDriver::~OutputFileSerialDriver() {
+OutputFileDriver::~OutputFileDriver() {
     if (!is_initialised)
         return; // If initialisation failed we don't have anything to clean up
 
@@ -74,6 +74,6 @@ OutputFileSerialDriver::~OutputFileSerialDriver() {
     thread_.join();
 }
 
-bool OutputFileSerialDriver::getConnected() {
+bool OutputFileDriver::getConnected() {
     return is_initialised && output_stream && *output_stream;
 }

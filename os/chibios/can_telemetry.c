@@ -47,7 +47,7 @@ static void can_send(uint16_t msg_id, bool can_rtr, uint8_t *data, uint8_t datal
     canTransmit(&CAND1, CAN_ANY_MAILBOX, &txmsg, MS2ST(100));
 }
 
-static can_interface_t interface = {can_send};
+CAN_INTERFACE(interface, can_send, 1024)
 
 static bool can_send_telemetry(const telemetry_t* packet, message_metadata_t metadata) {
     return can_interface_send(&interface, packet, metadata);
@@ -78,7 +78,7 @@ void can_telemetry_receive_thread(void* arg) {
 
         while(canReceive(&CAND1, CAN_ANY_MAILBOX, &rxmsg,
                          TIME_IMMEDIATE) == MSG_OK) {
-            can_interface_receive(&interface, rxmsg.SID, rxmsg.RTR, rxmsg.data8, rxmsg.DLC);
+            can_interface_receive(&interface, rxmsg.SID, rxmsg.RTR, rxmsg.data8, rxmsg.DLC, platform_get_counter_value());
         }
     }
 }

@@ -78,7 +78,7 @@ void can_send(uint16_t msg_id, bool can_rtr, uint8_t* data, uint8_t datalen) {
 	serial_interface.stream_flush_write();
 }
 
-can_interface_t can_interface = {can_send};
+CAN_INTERFACE(can_interface, can_send, 1024)
 
 static bool receive_packet(const telemetry_t* packet, message_metadata_t metadata) {
 	if (packet->header.origin == local_config.origin) {
@@ -107,7 +107,7 @@ bool read_can_frame() {
 		return false;
 	}
 
-	can_interface_receive(&can_interface, header.id, header.rtr == 1, data, header.dlc);
+	can_interface_receive(&can_interface, header.id, header.rtr == 1, data, header.dlc, UINT32_MAX);
 	return true;
 }
 

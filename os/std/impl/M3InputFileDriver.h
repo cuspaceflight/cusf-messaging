@@ -2,11 +2,12 @@
 
 #include <thread>
 #include <fstream>
+#include "InputFileDriver.h"
 
-class InputFileSerialDriver {
+class M3InputFileDriver : public IInputFileDriver {
 public:
-    InputFileSerialDriver(const char* filename);
-    ~InputFileSerialDriver();
+    M3InputFileDriver(const char* filename);
+    ~M3InputFileDriver();
 
     bool getConnected();
 

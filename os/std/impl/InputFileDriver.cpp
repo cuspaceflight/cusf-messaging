@@ -1,4 +1,4 @@
-#include "InputFileSerialDriver.h"
+#include "InputFileDriver.h"
 #include "serial_interface.h"
 #include "messaging.h"
 #include "cpp_utils.h"
@@ -41,8 +41,10 @@ static void writer_thread() {
     }
 }
 
-InputFileSerialDriver::InputFileSerialDriver(const char* filename) {
+InputFileDriver::InputFileDriver(const char* filename) {
     UtilAssert(!is_initialised, "Only one serial driver can be active at once");
+
+    printf("Reading telemetry_t input from %s", filename);
 
     input_stream_ = std::make_unique<std::ifstream>(filename, std::ifstream::binary | std::ifstream::in);
     read_buffer_index = 0;
@@ -58,7 +60,7 @@ InputFileSerialDriver::InputFileSerialDriver(const char* filename) {
     }
 }
 
-InputFileSerialDriver::~InputFileSerialDriver() {
+InputFileDriver::~InputFileDriver() {
     if (!is_initialised)
         return; // If initialisation failed we don't have anything to clean up
 
@@ -68,6 +70,6 @@ InputFileSerialDriver::~InputFileSerialDriver() {
     thread_.join();
 }
 
-bool InputFileSerialDriver::getConnected() {
+bool InputFileDriver::getConnected() {
     return is_initialised && input_stream_ && *input_stream_;
 }

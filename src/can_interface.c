@@ -3,126 +3,137 @@
 #include <string.h>
 #include <avionics_config.h>
 #include <component_state.h>
+#include <can_interface.h>
 #include "telemetry_packets.h"
 
 typedef struct {
-	int16_t base_id;
-	uint8_t size_in_bytes;
-	uint8_t num_bits;
-	uint8_t data_buffer[32];
-	bool is_valid[4];
-	uint8_t size_in_packets;
-	uint16_t seqno_mask;
-	telemetry_origin_t current_origin;
-} multipacket_message_t;
+    uint16_t base_id;
+    uint8_t size_in_bytes;
+    uint8_t num_bits;
+
+    uint8_t size_in_packets;
+    uint16_t seqno_mask;
+} multipacket_message_def_t;
 
 
-static const int num_multipacket_messages = 6;
-static multipacket_message_t multipacket_messages[6] = {
-	{.base_id = telemetry_id_mpu9250_data, .size_in_bytes = sizeof(mpu9250_data_t), .num_bits = 2},
-	{.base_id = telemetry_id_mpu9250_config, .size_in_bytes = sizeof(mpu9250_config_t), .num_bits = 2},
-	{.base_id = telemetry_id_adis16405_config, .size_in_bytes = sizeof(adis16405_config_t),.num_bits = 2},
-	{.base_id = telemetry_id_adis16405_data, .size_in_bytes = sizeof(adis16405_data_t),.num_bits = 2},
-	{.base_id = telemetry_id_state_estimate_data, .size_in_bytes = sizeof(state_estimate_t),.num_bits = 2},
-	{ .base_id = telemetry_id_calibration_magno_data,.size_in_bytes = sizeof(magno_calibration_data_t),.num_bits = 2 }
+#define MULTIPACKET_DEFINITION(_base_id_, _size_in_bytes, _num_bits) \
+{\
+    .base_id = _base_id_, \
+    .size_in_bytes = _size_in_bytes, \
+    .num_bits = _num_bits, \
+    .size_in_packets = (uint8_t) ((_size_in_bytes + 7) / 8), \
+    .seqno_mask = (uint16_t) ((1 << _num_bits) - 1)\
+}
+
+static const multipacket_message_def_t multipacket_message_definitions[NUM_MULTIPACKET_MESSAGES] = {
+        MULTIPACKET_DEFINITION(telemetry_id_mpu9250_data, sizeof(mpu9250_data_t), 2),
+        MULTIPACKET_DEFINITION(telemetry_id_mpu9250_config, sizeof(mpu9250_config_t), 2),
+        MULTIPACKET_DEFINITION(telemetry_id_adis16405_config, sizeof(adis16405_config_t), 2),
+        MULTIPACKET_DEFINITION(telemetry_id_adis16405_data, sizeof(adis16405_data_t), 2),
+        MULTIPACKET_DEFINITION(telemetry_id_state_estimate_data, sizeof(state_estimate_t), 2),
 };
 
-static void resetMultipacketMessage(multipacket_message_t* msg) {
-	msg->size_in_packets = (msg->size_in_bytes + 7) / 8;
-	if (msg->size_in_packets > 4) {
-		COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
-		return;
-	}
-	msg->seqno_mask = (1 << msg->num_bits) - 1;
-	if (msg->seqno_mask < msg->size_in_packets - 1) {
-		COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
-		return;
-	}
+static bool checkDefinitions(void) {
+    for (int i = 0; i < NUM_MULTIPACKET_MESSAGES; i++) {
+        const multipacket_message_def_t* def = &multipacket_message_definitions[i];
+        if (def->size_in_packets > 4) {
+            COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
+            return false;
+        }
+        if (def->seqno_mask < def->size_in_packets - 1) {
+            COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
+            return false;
+        }
+    }
+    return true;
+}
 
+static void resetMultipacketMessage(multipacket_message_buffer_t* msg) {
 	for (int i = 0; i < 4; i++) {
 		msg->is_valid[i] = false;
 	}
 	msg->current_origin = telemetry_origin_invalid;
 }
 
-static bool isMultipacketValid(multipacket_message_t* msg) {
-	for (int i = 0; i < msg->size_in_packets; i++)
+static bool isMultipacketValid(const multipacket_message_def_t* def, multipacket_message_buffer_t* msg) {
+	for (int i = 0; i < def->size_in_packets; i++)
 		if (!msg->is_valid[i])
 			return false;
 	return true;
 }
 
-static volatile bool can_interface_initialized = false;
-
-TELEMETRY_ALLOCATOR(can_telemetry_allocator, 1024);
-
 void can_interface_init(can_interface_t* id) {
-	telemetry_allocator_init(&can_telemetry_allocator);
-	COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_ok);
+    if (!checkDefinitions())
+        return;
 
-	for (int i = 0; i < num_multipacket_messages; i++)
-		resetMultipacketMessage(&multipacket_messages[i]);
+    telemetry_allocator_init(id->telemetry_allocator);
 
-	can_interface_initialized = true;
+    COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_ok);
+	for (int i = 0; i < NUM_MULTIPACKET_MESSAGES; i++)
+		resetMultipacketMessage(&id->multipacket_message_buffers[i]);
+
+    id->initialized = true;
 }
 
-static void handleFullPacket(uint16_t telemetry_id, telemetry_origin_t origin, uint8_t* data, uint8_t length) {
-	telemetry_t* packet = telemetry_allocator_alloc(&can_telemetry_allocator, length);
+static void handleFullPacket(can_interface_t* interface, uint16_t telemetry_id, telemetry_origin_t origin, uint8_t* data, uint8_t length, uint32_t timestamp) {
+	telemetry_t* packet = telemetry_allocator_alloc(interface->telemetry_allocator, length);
 	if (packet == NULL)
 		return;
 	memcpy(packet->payload, data, length);
 	packet->header.id = telemetry_id;
 	packet->header.length = length;
 	packet->header.origin = origin;
+    packet->header.timestamp = timestamp;
 	messaging_send(packet, 0);
 }
 
-static multipacket_message_t* getMultipacket(uint16_t telemetry_id) {
-	for (int i = 0; i < num_multipacket_messages; i++) {
-		uint16_t mask = ~(multipacket_messages[i].seqno_mask);
-		if ((telemetry_id & mask) == multipacket_messages[i].base_id)
-			return &multipacket_messages[i];
+static int getMultipacketIndex(uint16_t telemetry_id) {
+	for (int i = 0; i < NUM_MULTIPACKET_MESSAGES; i++) {
+		uint16_t mask = ~(multipacket_message_definitions[i].seqno_mask);
+		if ((telemetry_id & mask) == multipacket_message_definitions[i].base_id)
+			return i;
 	}
-	return NULL;
+	return -1;
 }
 
-void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool can_rtr, uint8_t *data, uint8_t datalen) {
+void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool can_rtr, uint8_t *data, uint8_t datalen, uint32_t timestamp) {
 	(void)can_rtr;
-	if (!can_interface_initialized)
+	if (!interface->initialized)
 		return;
 
-	uint16_t id = (can_msg_id >> 5) & 0x3F;
-	uint8_t origin = can_msg_id & 0x1F;
+	uint16_t id = (uint16_t) ((can_msg_id >> 5) & 0x3F);
+	uint8_t origin = (uint8_t) (can_msg_id & 0x1F);
 
 	// We don't understand packets from other sources
 	if (origin != telemetry_origin_avionics_gui && origin != telemetry_origin_m3imu)
 		return;
 
-	multipacket_message_t* multipacket = getMultipacket(id);
-	if (multipacket == NULL) {
-		if (datalen <= 8) {
-			handleFullPacket(id, (telemetry_origin_t)origin, data, datalen);
-			return;
-		}
-		else {
-			COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
-			return;
-		}
-	}
+    int multipacket_index = getMultipacketIndex(id);
+    if (multipacket_index < 0) {
+        COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
+        return;
+    }
+
+    multipacket_message_buffer_t* multipacket = &interface->multipacket_message_buffers[multipacket_index];
+    const multipacket_message_def_t* def = &multipacket_message_definitions[multipacket_index];
+    if (datalen <= 8) {
+        handleFullPacket(interface, id, (telemetry_origin_t)origin, data, datalen, timestamp);
+        return;
+    }
 
 	if (multipacket->current_origin == telemetry_origin_invalid) {
-		multipacket->current_origin = origin;
+		multipacket->current_origin = (telemetry_origin_t) origin;
 	} else if (multipacket->current_origin != origin) {
 		COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
 		return;
 	}
 
-	uint8_t seqno = id & multipacket->seqno_mask;
+	uint8_t seqno = (uint8_t) (id & def->seqno_mask);
 
 	uint8_t* ptr = (uint8_t*)&multipacket->data_buffer;
 	ptr += seqno * 8;
 
-	if (seqno*8 + datalen > multipacket->size_in_bytes) {
+	if (seqno*8 + datalen > def->size_in_bytes) {
 		COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
 		return;
 	}
@@ -131,8 +142,8 @@ void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool
 
 	multipacket->is_valid[seqno] = true;
 
-	if (isMultipacketValid(multipacket)) {
-		handleFullPacket(multipacket->base_id, multipacket->current_origin, multipacket->data_buffer, multipacket->size_in_bytes);
+	if (isMultipacketValid(def, multipacket)) {
+		handleFullPacket(interface, def->base_id, multipacket->current_origin, multipacket->data_buffer, def->size_in_bytes, timestamp);
 		resetMultipacketMessage(multipacket);
 	}
 }
@@ -145,14 +156,15 @@ bool can_interface_send(can_interface_t* interface, const telemetry_t* packet, m
             return true;
         }
 
-
-		multipacket_message_t* msg = getMultipacket(packet->header.id);
-        if (msg == NULL) {
+        int multipacket_index = getMultipacketIndex(packet->header.id);
+        if (multipacket_index < 0) {
             COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
             return true;
         }
 
-		if (msg->size_in_bytes != packet->header.length) {
+        const multipacket_message_def_t* def = &multipacket_message_definitions[multipacket_index];
+
+		if (def->size_in_bytes != packet->header.length) {
 			COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
 			return true;
 		}

@@ -3,14 +3,15 @@
 #include <config/avionics_config.h>
 #include "file_telemetry.h"
 #include "cpp_utils.h"
-#include "impl/OutputFileSerialDriver.h"
-#include "impl/InputFileSerialDriver.h"
+#include "impl/OutputFileDriver.h"
+#include "impl/InputFileDriver.h"
+#include "impl/M3InputFileDriver.h"
 
 
 #if FILE_TELEMETRY_ENABLED
 
-std::unique_ptr<OutputFileSerialDriver> out_driver;
-std::unique_ptr<InputFileSerialDriver> in_driver;
+std::unique_ptr<IOutputFileDriver> out_driver;
+std::unique_ptr<IInputFileDriver> in_driver;
 
 inline bool fileExists(const std::string& fileName) {
     std::ifstream infile(fileName);
@@ -33,7 +34,7 @@ static void file_telemetry_output_start(void) {
     std::ofstream (extensionTrackingName) << extension;
 
 
-    std::string name = local_config.output_file_name + std::to_string(extension) + ".bin";
+    std::string name = local_config.output_file_name + std::to_string(extension) + ".tel";
     if (fileExists(name)) {
         if (!local_config.output_file_overwrite_enabled) {
             printf("Error: No output file could be created\n");
@@ -46,7 +47,7 @@ static void file_telemetry_output_start(void) {
     }
 
 
-    out_driver = std::make_unique<OutputFileSerialDriver>(name.c_str());
+    out_driver = std::make_unique<OutputFileDriver>(name.c_str());
 }
 
 static void file_telemetry_input_start(void) {
@@ -57,8 +58,15 @@ static void file_telemetry_input_start(void) {
         printf("Input file not found: %s\n", local_config.input_file_name);
         return;
     }
+    std::string fn(local_config.input_file_name);
+    auto extension = fn.substr(fn.find_last_of(".") + 1);
 
-    in_driver = std::make_unique<InputFileSerialDriver>(local_config.input_file_name);
+    if (extension == "tel")
+        in_driver = std::make_unique<InputFileDriver>(local_config.input_file_name);
+    else if (extension == "m3tel")
+        in_driver = std::make_unique<M3InputFileDriver>(local_config.input_file_name);
+    else
+        printf("Unrecognised output format %s", extension.c_str());
 }
 
 void file_telemetry_start(void) {
