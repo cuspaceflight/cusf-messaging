@@ -23,9 +23,8 @@ typedef enum {
     TELEMETRY_SOURCE(ts_m3imu, ts_all,                                  5,        5),
     TELEMETRY_SOURCE(ts_m3dl, ts_all,                                   6,        5),
 
-    // Component State
-    TELEMETRY_SOURCE(ts_component_state, ts_all,                        0b000,    8),
-    TELEMETRY_SOURCE(ts_component_state_update, ts_component_state,     0b000,    1),
+
+    TELEMETRY_SOURCE(ts_component_state, ts_m3imu,                      0,       11),
 
     // State Estimation
     TELEMETRY_SOURCE(ts_state_estimation, ts_m3imu,                     0b001,    8),
@@ -35,17 +34,17 @@ typedef enum {
 
 
     // MS5611
-    TELEMETRY_SOURCE(ts_ms5611, ts_all,                                 0b010,    8),
+    TELEMETRY_SOURCE(ts_ms5611, ts_m3imu,                               0b010,    8),
     TELEMETRY_SOURCE(ts_ms5611_config, ts_ms5611,                       0b000,    9),
     TELEMETRY_SOURCE(ts_ms5611_data, ts_ms5611,                         0b001,    9),
 
     // MPU9250
-    TELEMETRY_SOURCE(ts_mpu9250, ts_all,                                0b011,    8),
+    TELEMETRY_SOURCE(ts_mpu9250, ts_m3imu,                              0b011,    8),
     TELEMETRY_SOURCE(ts_mpu9250_config, ts_mpu9250,                     0b000,    9),
     TELEMETRY_SOURCE(ts_mpu9250_data, ts_mpu9250,                       0b001,    9),
 
     // ADIS16405
-    TELEMETRY_SOURCE(ts_adis16405, ts_all,                              0b110,    8),
+    TELEMETRY_SOURCE(ts_adis16405, ts_m3imu,                            0b110,    8),
     TELEMETRY_SOURCE(ts_adis16405_config, ts_adis16405,                 0b000,    9),
     TELEMETRY_SOURCE(ts_adis16405_data, ts_adis16405,                   0b000,    9),
 

@@ -92,6 +92,14 @@ typedef struct {
 
 STATIC_ASSERT(sizeof(magno_calibration_data_t) == 14, calibration_data_padded);
 
+typedef struct component_state_update_t {
+    uint8_t overall_state;
+    uint8_t component;
+    uint8_t state;
+    uint8_t line_number;
+} component_state_update_t;
+
+STATIC_ASSERT(sizeof(component_state_update_t) == 4, component_state_padded);
 
 
 #ifdef __cplusplus
