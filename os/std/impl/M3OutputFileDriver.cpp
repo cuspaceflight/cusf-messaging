@@ -1,38 +1,48 @@
-#include "OutputFileDriver.h"
-#include "serial_interface.h"
-#include "messaging.h"
+#include "M3OutputFileDriver.h"
+#include <can_interface.h>
 #include "cpp_utils.h"
 
 #define READ_BUFFER_SIZE 255
 #define WRITE_BUFFER_SIZE 255
 
-static unsigned int write_buffer_index = 0;
+typedef struct {
+    uint16_t ID;
+    uint8_t RTR;
+    uint8_t len;
+    uint8_t data[8];
+    uint32_t timestamp;
+} __attribute__((packed)) DLPacket;
 
-static uint8_t write_buffer[WRITE_BUFFER_SIZE];
+
 
 static bool is_initialised = false;
 static std::ofstream* s_stream = nullptr;
+static uint32_t last_timestamp = 0;
 
 
-static bool stream_put(uint8_t byte) {
-    if (write_buffer_index >= WRITE_BUFFER_SIZE) {
-        s_stream->write((const char *)write_buffer, WRITE_BUFFER_SIZE);
-        write_buffer_index = 0;
+static void can_send(uint16_t msg_id, bool can_rtr, uint8_t* data, uint8_t datalen) {
+    DLPacket packet;
+    packet.ID = msg_id;
+    packet.RTR = (uint8_t)can_rtr;
+    packet.len = datalen;
+    packet.timestamp = last_timestamp;
+
+    int i;
+    for (i = 0; i < datalen; i++) {
+        packet.data[i] = data[i];
     }
-    write_buffer[write_buffer_index++] = byte;
-    return true;
+    for (; i < 8; i++) {
+        packet.data[i] = 0;
+    }
+    s_stream->write((const char *) &packet, sizeof(packet));
 }
 
-static bool stream_flush() {
-    s_stream->write((const char*)write_buffer, write_buffer_index);
-    return true;
-}
+CAN_INTERFACE(can_interface, can_send, 1024)
 
-
-SERIAL_INTERFACE(serial_interface, nullptr, stream_put, stream_flush, 1024);
 
 static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) {
-    return serial_interface_send_packet(&serial_interface, packet);
+    last_timestamp = packet->header.timestamp;
+    return can_interface_send(&can_interface, packet, flags);
 }
 
 
@@ -44,24 +54,24 @@ static void reader_thread() {
     }
 }
 
-OutputFileDriver::OutputFileDriver(const char* filename) {
+M3OutputFileDriver::M3OutputFileDriver(const char* filename) {
     UtilAssert(!is_initialised, "Only one serial driver can be active at once");
 
     output_stream = std::make_unique<std::ofstream>(filename, std::ofstream::binary | std::ofstream::out);
-    write_buffer_index = 0;
 
     if (output_stream && *output_stream) {
+
         is_initialised = true;
         s_stream = output_stream.get();
 
         messaging_consumer_init(&messaging_consumer);
-        serial_interface_init(&serial_interface);
+        can_interface_init(&can_interface);
 
         thread_ = std::thread(reader_thread);
     }
 }
 
-OutputFileDriver::~OutputFileDriver() {
+M3OutputFileDriver::~M3OutputFileDriver() {
     if (!is_initialised)
         return; // If initialisation failed we don't have anything to clean up
 
@@ -73,6 +83,6 @@ OutputFileDriver::~OutputFileDriver() {
     thread_.join();
 }
 
-bool OutputFileDriver::getConnected() {
+bool M3OutputFileDriver::getConnected() {
     return is_initialised && output_stream && *output_stream;
 }

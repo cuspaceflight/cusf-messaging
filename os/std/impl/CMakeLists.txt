@@ -5,6 +5,8 @@ set (SOURCES ${SOURCES}
         ${CMAKE_CURRENT_SOURCE_DIR}/InputFileDriver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/OutputFileDriver.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/M3InputFileDriver.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/M3OutputFileDriver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/CSVOutputFileDriver.cpp
     PARENT_SCOPE)
 
 set (HEADERS ${HEADERS}

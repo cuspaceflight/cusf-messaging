@@ -44,8 +44,6 @@ static void writer_thread() {
 InputFileDriver::InputFileDriver(const char* filename) {
     UtilAssert(!is_initialised, "Only one serial driver can be active at once");
 
-    printf("Reading telemetry_t input from %s", filename);
-
     input_stream_ = std::make_unique<std::ifstream>(filename, std::ifstream::binary | std::ifstream::in);
     read_buffer_index = 0;
 

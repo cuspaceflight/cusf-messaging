@@ -8,7 +8,7 @@ extern "C" {
 // Defines a telemetry source
 #define TELEMETRY_SOURCE(name, parent_name, id, suffix_length) \
     name##_mask = ((1 << suffix_length)-1), \
-    name = (id << parent_name##_suffix_length) & name##_mask, \
+    name = ((id << parent_name##_suffix_length) & name##_mask) | parent_name, \
     name##_suffix_length = suffix_length
 
 typedef enum {

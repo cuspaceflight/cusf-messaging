@@ -20,6 +20,8 @@ typedef struct avionics_config_t {
     const char* output_file_name;
 
     bool output_file_overwrite_enabled;
+
+    bool mute_component_state;
 } avionics_config_t;
 
 // This should be defined somewhere with the local configuration e.g in main.c

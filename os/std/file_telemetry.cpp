@@ -6,6 +6,8 @@
 #include "impl/OutputFileDriver.h"
 #include "impl/InputFileDriver.h"
 #include "impl/M3InputFileDriver.h"
+#include "impl/M3OutputFileDriver.h"
+#include "impl/CSVOutputFileDriver.h"
 
 
 #if FILE_TELEMETRY_ENABLED
@@ -22,22 +24,15 @@ static void file_telemetry_output_start(void) {
     if (!local_config.output_file_name || out_driver)
         return;
 
-    std::string extensionTrackingName = std::string(local_config.output_file_name) + "-latest.txt";
-
-    int extension = 0;
-    if (fileExists(extensionTrackingName)) {
-        std::ifstream(extensionTrackingName) >> extension;
-        extension += 1;
-        if (extension > MAX_INC_NAME_EXTENSION)
-            extension = 0;
-    }
-    std::ofstream (extensionTrackingName) << extension;
+    std::string output_file_name = std::string(local_config.output_file_name);
+    std::string output_file_extension = output_file_name.substr(1 + output_file_name.find_last_of('.'));
+    output_file_name.erase(output_file_name.find_last_of('.'));
 
 
-    std::string name = local_config.output_file_name + std::to_string(extension) + ".tel";
+    std::string name = output_file_name + "." + output_file_extension;
     if (fileExists(name)) {
         if (!local_config.output_file_overwrite_enabled) {
-            printf("Error: No output file could be created\n");
+            fprintf(stderr, "Output file already exists\n");
             return;
         } else {
             printf("Overwriting existing file: %s\n", name.c_str());
@@ -46,8 +41,16 @@ static void file_telemetry_output_start(void) {
         printf("Writing data to file: %s\n", name.c_str());
     }
 
+    if (output_file_extension == "tel") {
+        out_driver = std::make_unique<OutputFileDriver>(name.c_str());
+    } else if (output_file_extension == "m3tel") {
+        out_driver = std::make_unique<M3OutputFileDriver>(name.c_str());
+    } else if (output_file_extension == "csv") {
+        out_driver = std::make_unique<CSVOutputFileDriver>(name.c_str());
+    } else {
+        printf("Unrecognised output format %s", output_file_extension.c_str());
+    }
 
-    out_driver = std::make_unique<OutputFileDriver>(name.c_str());
 }
 
 static void file_telemetry_input_start(void) {
@@ -66,7 +69,7 @@ static void file_telemetry_input_start(void) {
     else if (extension == "m3tel")
         in_driver = std::make_unique<M3InputFileDriver>(local_config.input_file_name);
     else
-        printf("Unrecognised output format %s", extension.c_str());
+        printf("Unrecognised input format %s", extension.c_str());
 }
 
 void file_telemetry_start(void) {

@@ -29,8 +29,6 @@ M3InputFileDriver::M3InputFileDriver(const char* filename) {
 
     can_interface_init(&can_interface);
 
-    printf("Reading telemetry_t input from %s", filename);
-
     input_stream_ = std::make_unique<std::ifstream>(filename, std::ifstream::binary | std::ifstream::in);
 
     if (input_stream_ && *input_stream_) {
