@@ -14,7 +14,7 @@ typedef struct component_state_update_t {
 
 STATIC_ASSERT(sizeof(component_state_update_t) == 4, component_state_update_invalid_size);
 
-MESSAGING_PRODUCER(messaging_producer, telemetry_id_component_state_update, sizeof(component_state_update_t), 20);
+MESSAGING_PRODUCER(messaging_producer, ts_component_state_update, sizeof(component_state_update_t), 20);
 
 static volatile bool is_started = false;
 static volatile bool messaging_enabled = false;

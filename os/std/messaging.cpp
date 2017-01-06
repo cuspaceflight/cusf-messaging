@@ -147,9 +147,8 @@ extern "C" messaging_send_return_codes messaging_producer_send(message_producer_
 
     // We have already checked the tag and source don't overlap earlier
     packet->header.id = producer->packet_id;
-    packet->header.length = producer->payload_size;
+    packet->header.length = (uint8_t) producer->payload_size;
     packet->header.timestamp = platform_get_counter_value();
-    packet->header.origin = local_config.origin;
 
     return messaging_send(packet, flags);
 }

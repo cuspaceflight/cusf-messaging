@@ -14,7 +14,6 @@ typedef void(*can_interface_send_t)(uint16_t msg_id, bool can_rtr, uint8_t* data
 typedef struct {
     uint8_t data_buffer[32];
     bool is_valid[4];
-    telemetry_origin_t current_origin;
 } multipacket_message_buffer_t;
 
 typedef struct can_interface_t {

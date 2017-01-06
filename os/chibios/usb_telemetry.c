@@ -36,13 +36,11 @@ static bool transmit_packet(const telemetry_t* packet, message_metadata_t metada
     (void)metadata;
     if (serusbcfg.usbp->state != USB_ACTIVE)
         return false;
-    if (packet->header.origin == local_config.origin) {
-        if (!serial_interface_send_packet(&serial_interface, packet)) {
-            // This will cause the transmit thread to back off for a second
-            // This occurs when the receiver's input buffer is full
-            // Either we are writing to it too fast or nothing is reading it
-            return false;
-        }
+    if (!serial_interface_send_packet(&serial_interface, packet)) {
+        // This will cause the transmit thread to back off for a second
+        // This occurs when the receiver's input buffer is full
+        // Either we are writing to it too fast or nothing is reading it
+        return false;
     }
     return true;
 }
@@ -92,7 +90,7 @@ void usb_telemetry_receive_thread(void* arg) {
         if (serusbcfg.usbp->state == USB_ACTIVE) {
             telemetry_t* packet = serial_interface_next_packet(&serial_interface);
             if (packet != NULL)
-                messaging_send(packet, 0);
+                messaging_send(packet, message_flags_dont_send_over_usb);
             chThdYield(); // Ensure that other threads get to run
         } else {
             chThdSleepMilliseconds(500);

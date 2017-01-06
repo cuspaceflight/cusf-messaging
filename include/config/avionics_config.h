@@ -10,9 +10,6 @@ extern "C" {
 typedef void(*avionics_component_state_update_handler_t)(avionics_component_t component, avionics_component_state_t state, int line);
 
 typedef struct avionics_config_t {
-    // The origin of the local system
-    const telemetry_origin_t origin;
-
     // NB: This will be called from a variety of threads
     // and so should be a thread safe function
     // May be set to NULL

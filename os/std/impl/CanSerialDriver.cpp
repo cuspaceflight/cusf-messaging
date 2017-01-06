@@ -25,7 +25,7 @@ static uint8_t stream_get() {
 			// Trigger termination of the read
 			return 0x7E;
 		}
-		read_buffer_limit = s_port->read(read_buffer, READ_BUFFER_SIZE);
+		read_buffer_limit = (unsigned int) s_port->read(read_buffer, READ_BUFFER_SIZE);
 		read_buffer_index = 0;
 		if (read_buffer_index >= read_buffer_limit)
 			std::this_thread::sleep_for(std::chrono::milliseconds(5));
@@ -81,10 +81,7 @@ void can_send(uint16_t msg_id, bool can_rtr, uint8_t* data, uint8_t datalen) {
 CAN_INTERFACE(can_interface, can_send, 1024)
 
 static bool receive_packet(const telemetry_t* packet, message_metadata_t metadata) {
-	if (packet->header.origin == local_config.origin) {
-		can_interface_send(&can_interface, packet, metadata);
-	}
-
+    can_interface_send(&can_interface, packet, metadata);
 	return true;
 }
 

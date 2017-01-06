@@ -12,12 +12,9 @@ extern "C" {
 #define MAX_TELEMETRY_PAYLOAD_SIZE 4000
 
 typedef struct telemetry_header_t {
-    struct {
-        unsigned int id : 11;
-        unsigned int length : 12;
-        unsigned int reserved : 1;
-        telemetry_origin_t origin : 8;
-    };
+    uint16_t id;
+    uint8_t length;
+    uint8_t reserved;
     uint32_t timestamp;
 } telemetry_header_t;
 

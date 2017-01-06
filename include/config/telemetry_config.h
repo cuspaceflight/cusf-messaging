@@ -5,67 +5,51 @@
 extern "C" {
 #endif
 
-// A CAN ID has 11 bits
-// The CAN driver uses 5 bits of that to identify the board
-// This leaves 6 bits for assigning ids
-
 // Defines a telemetry source
-// TODO: Add system which generates error if prefix length not at least length of parent
-#define TELEMETRY_SOURCE(name, parent_name, id, prefix_length) \
-    name = ((id & (~(parent_name##_mask))) | parent_name), \
-    name##_mask = 0b111111 - ((1 << (6-prefix_length))-1)
-
-// Defines a packet from the given source
-#define TELEMETRY_ID(name, source, tag) \
-    name = source | (tag & ~source##_mask)
+#define TELEMETRY_SOURCE(name, parent_name, id, suffix_length) \
+    name##_mask = ((1 << suffix_length)-1), \
+    name = (id << parent_name##_suffix_length) & name##_mask, \
+    name##_suffix_length = suffix_length
 
 typedef enum {
-    telemetry_source_all = 0b000000,
-    telemetry_source_all_mask = 0b000000,
-    telemetry_source_packet_specific_mask = 0b111111,
+    ts_all = 0b00000000000,
+    ts_all_mask = 0b00000000000,
+    ts_all_suffix_length = 0,
 
-    TELEMETRY_ID(telemetry_id_can_msg_id, telemetry_source_all,                             0b111111),
-    TELEMETRY_ID(telemetry_id_can_status, telemetry_source_all,                             0b000000),
-
-    // State Estimation
-    TELEMETRY_SOURCE(telemetry_source_state_estimation, telemetry_source_all,               0b001000, 3),
-    TELEMETRY_ID(telemetry_id_state_estimate_config, telemetry_source_state_estimation,     0b001000),
-    TELEMETRY_ID(telemetry_id_state_estimate_data, telemetry_source_state_estimation,       0b001100),
-    TELEMETRY_ID(telemetry_id_state_estimate_status, telemetry_source_state_estimation,     0b001010),
+    TELEMETRY_SOURCE(ts_m3fc, ts_all,                                   1,        5),
+    TELEMETRY_SOURCE(ts_m3psu, ts_all,                                  2,        5),
+    TELEMETRY_SOURCE(ts_m3pyro, ts_all,                                 3,        5),
+    TELEMETRY_SOURCE(ts_m3radio, ts_all,                                4,        5),
+    TELEMETRY_SOURCE(ts_m3imu, ts_all,                                  5,        5),
+    TELEMETRY_SOURCE(ts_m3dl, ts_all,                                   6,        5),
 
     // Component State
-    TELEMETRY_SOURCE(telemetry_source_component_state, telemetry_source_all,                0b011000, 3),
-    TELEMETRY_ID(telemetry_id_component_state_update, telemetry_source_component_state,     0b011000),
+    TELEMETRY_SOURCE(ts_component_state, ts_all,                        0b000,    8),
+    TELEMETRY_SOURCE(ts_component_state_update, ts_component_state,     0b000,    1),
 
-    TELEMETRY_SOURCE(telemetry_source_imu_data, telemetry_source_all,                       0b100000, 1),
+    // State Estimation
+    TELEMETRY_SOURCE(ts_state_estimation, ts_m3imu,                     0b001,    8),
+    TELEMETRY_SOURCE(ts_state_estimate_config, ts_state_estimation,     0b000,   11),
+    TELEMETRY_SOURCE(ts_state_estimate_status, ts_state_estimation,     0b010,   11),
+    TELEMETRY_SOURCE(ts_state_estimate_data, ts_state_estimation,       0b001,    9),
+
 
     // MS5611
-    TELEMETRY_SOURCE(telemetry_source_ms5611, telemetry_source_imu_data,                    0b111000, 3),
-    TELEMETRY_ID(telemetry_id_ms5611_config, telemetry_source_ms5611,                       0b111000),
-    TELEMETRY_ID(telemetry_id_ms5611_data, telemetry_source_ms5611,                         0b111100),
+    TELEMETRY_SOURCE(ts_ms5611, ts_all,                                 0b010,    8),
+    TELEMETRY_SOURCE(ts_ms5611_config, ts_ms5611,                       0b000,    9),
+    TELEMETRY_SOURCE(ts_ms5611_data, ts_ms5611,                         0b001,    9),
 
     // MPU9250
-    TELEMETRY_SOURCE(telemetry_source_mpu9250, telemetry_source_imu_data,                   0b101000, 3),
-    TELEMETRY_ID(telemetry_id_mpu9250_config, telemetry_source_mpu9250,                     0b101000),
-    TELEMETRY_ID(telemetry_id_mpu9250_data, telemetry_source_mpu9250,                       0b101100),
+    TELEMETRY_SOURCE(ts_mpu9250, ts_all,                                0b011,    8),
+    TELEMETRY_SOURCE(ts_mpu9250_config, ts_mpu9250,                     0b000,    9),
+    TELEMETRY_SOURCE(ts_mpu9250_data, ts_mpu9250,                       0b001,    9),
 
     // ADIS16405
-    TELEMETRY_SOURCE(telemetry_source_adis16405, telemetry_source_imu_data,                 0b100000, 3),
-    TELEMETRY_ID(telemetry_id_adis16405_config, telemetry_source_adis16405,                 0b100000),
-    TELEMETRY_ID(telemetry_id_adis16405_data, telemetry_source_adis16405,                   0b100100),
+    TELEMETRY_SOURCE(ts_adis16405, ts_all,                              0b110,    8),
+    TELEMETRY_SOURCE(ts_adis16405_config, ts_adis16405,                 0b000,    9),
+    TELEMETRY_SOURCE(ts_adis16405_data, ts_adis16405,                   0b000,    9),
 
 } telemetry_id_t;
-
-typedef enum {
-    telemetry_origin_m3fc = 1,
-    telemetry_origin_m3psu = 2,
-    telemetry_origin_m3pyro = 3,
-    telemetry_origin_m3radio = 4,
-    telemetry_origin_m3imu = 5,
-    telemetry_origin_m3dl = 6,
-    telemetry_origin_avionics_gui = 7,
-	telemetry_origin_invalid = 8,
-} telemetry_origin_t;
 
 #ifdef __cplusplus
 }

@@ -53,9 +53,7 @@ static bool stream_flush() {
 SERIAL_INTERFACE(serial_interface, stream_get, stream_put, stream_flush, 1024);
 
 static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) {
-	if (packet->header.origin == local_config.origin)
-		return serial_interface_send_packet(&serial_interface, packet);
-	return true;
+	return serial_interface_send_packet(&serial_interface, packet);
 }
 
 
@@ -71,7 +69,7 @@ static void writer_thread() {
 	while (s_port != nullptr) {
 		telemetry_t* packet = serial_interface_next_packet(&serial_interface);
 		if (packet != nullptr)
-			messaging_send(packet, 0);
+			messaging_send(packet, message_flags_dont_send_over_usb);
 	}
 }
 
