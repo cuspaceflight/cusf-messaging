@@ -28,3 +28,7 @@ target_include_directories ( messaging PUBLIC
 )
 
 target_link_libraries(messaging PRIVATE ${OS_LIBS})
+
+if (UNIX)
+    add_subdirectory(extractor)
+endif()

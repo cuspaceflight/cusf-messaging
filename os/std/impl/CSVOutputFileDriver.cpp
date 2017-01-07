@@ -23,7 +23,7 @@ static std::ostream* s_stream = nullptr;
 static void print_formats() {
     *s_stream << "StartFormatDescriptors" << std::endl;
     *s_stream << "MPU9250Data,Accel X, Accel Y, Accel Z, Gyro X, Gyro Y, Gyro Z, Magno X, Magno Y, Magno Z" << std::endl;
-    *s_stream << "StateUpdate,Component Str, Component #, State, Overall State, Line Number" << std::endl;
+    *s_stream << "StateUpdate,Component String, Component #, State, Overall State, Line Number" << std::endl;
     *s_stream << "EndFormatDescriptors" << std::endl;
 }
 
