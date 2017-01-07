@@ -1,6 +1,5 @@
 #include <fstream>
 #include <ctime>
-#include <config/avionics_config.h>
 #include "file_telemetry.h"
 #include "cpp_utils.h"
 #include "impl/OutputFileDriver.h"
@@ -20,18 +19,18 @@ inline bool fileExists(const std::string& fileName) {
     return infile.good();
 }
 
-static void file_telemetry_output_start(void) {
-    if (!local_config.output_file_name || out_driver)
+void file_telemetry_output_start(const char* filename, bool overwrite) {
+    if (!filename || out_driver)
         return;
 
-    std::string output_file_name = std::string(local_config.output_file_name);
+    std::string output_file_name = std::string(filename);
     std::string output_file_extension = output_file_name.substr(1 + output_file_name.find_last_of('.'));
     output_file_name.erase(output_file_name.find_last_of('.'));
 
 
     std::string name = output_file_name + "." + output_file_extension;
     if (fileExists(name)) {
-        if (!local_config.output_file_overwrite_enabled) {
+        if (!overwrite) {
             fprintf(stderr, "Output file already exists\n");
             return;
         } else {
@@ -53,28 +52,23 @@ static void file_telemetry_output_start(void) {
 
 }
 
-static void file_telemetry_input_start(void) {
-    if (!local_config.input_file_name || in_driver)
+void file_telemetry_input_start(const char* filename) {
+    if (!filename || in_driver)
         return;
 
-    if (!fileExists(local_config.input_file_name)) {
-        printf("Input file not found: %s\n", local_config.input_file_name);
+    if (!fileExists(filename)) {
+        printf("Input file not found: %s\n", filename);
         return;
     }
-    std::string fn(local_config.input_file_name);
+    std::string fn(filename);
     auto extension = fn.substr(fn.find_last_of(".") + 1);
 
     if (extension == "tel")
-        in_driver = std::make_unique<InputFileDriver>(local_config.input_file_name);
+        in_driver = std::make_unique<InputFileDriver>(filename);
     else if (extension == "m3tel")
-        in_driver = std::make_unique<M3InputFileDriver>(local_config.input_file_name);
+        in_driver = std::make_unique<M3InputFileDriver>(filename);
     else
         printf("Unrecognised input format %s", extension.c_str());
-}
-
-void file_telemetry_start(void) {
-    file_telemetry_output_start();
-    file_telemetry_input_start();
 }
 
 bool file_telemetry_input_connected(void) {

@@ -37,7 +37,7 @@ static void writer_thread() {
     while (s_stream && *s_stream) {
         telemetry_t* packet = serial_interface_next_packet(&serial_interface);
         if (packet != nullptr)
-            messaging_send(packet, message_flags_dont_send_to_file);
+            messaging_send(packet, 0);
     }
 }
 

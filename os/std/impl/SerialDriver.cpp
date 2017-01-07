@@ -1,7 +1,6 @@
 ﻿#include "SerialDriver.h"
 #include "serial_interface.h"
 #include "messaging.h"
-#include <avionics_config.h>
 #include "messaging_config.h"
 #include "cpp_utils.h"
 #include <serial/serial.h>

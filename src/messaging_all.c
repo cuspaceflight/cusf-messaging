@@ -8,7 +8,7 @@
 #include "file_telemetry.h"
 
 void messaging_all_start(void) {
-    component_state_start();
+    component_state_start(NULL, true);
     checksum_init();
     telemetry_allocator_start();
     messaging_start();
@@ -19,9 +19,5 @@ void messaging_all_start(void) {
 
 #if CAN_TELEMETRY_ENABLED
     can_telemetry_start();
-#endif
-
-#if FILE_TELEMETRY_ENABLED
-    file_telemetry_start();
 #endif
 }

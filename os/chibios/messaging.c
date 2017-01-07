@@ -5,7 +5,6 @@
 #include "core_cmInstr.h"
 #include "platform.h"
 #include "component_state.h"
-#include "avionics_config.h"
 
 #define MAX_NUM_CONSUMERS 20
 #define MAX_NUM_PRODUCERS 20

@@ -1,9 +1,6 @@
 #include "can_interface.h"
-#include "messaging.h"
 #include <string.h>
-#include <avionics_config.h>
 #include <component_state.h>
-#include <can_interface.h>
 #include "telemetry_packets.h"
 
 typedef struct {

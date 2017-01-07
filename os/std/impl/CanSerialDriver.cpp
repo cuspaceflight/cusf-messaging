@@ -1,7 +1,6 @@
 ﻿#include "CanSerialDriver.h"
 #include "serial_interface.h"
 #include "messaging.h"
-#include <avionics_config.h>
 #include <serial/serial.h>
 #include "can_interface.h"
 #include "cpp_utils.h"

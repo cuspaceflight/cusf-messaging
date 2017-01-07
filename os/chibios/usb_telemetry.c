@@ -3,7 +3,6 @@
 #include "hal.h"
 #include "serial_interface.h"
 #include "messaging.h"
-#include "avionics_config.h"
 #include "platform.h"
 
 #if USB_TELEMETRY_ENABLED

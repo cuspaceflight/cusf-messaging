@@ -36,7 +36,7 @@ static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) 
 }
 
 
-MESSAGING_CONSUMER(messaging_consumer, 0, 0, 0, message_flags_dont_send_to_file, receive_packet, 100);
+MESSAGING_CONSUMER(messaging_consumer, 0, 0, 0, 0, receive_packet, 100);
 
 static void reader_thread() {
     while (s_stream != nullptr) {

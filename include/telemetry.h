@@ -28,6 +28,14 @@ STATIC_ASSERT(sizeof(telemetry_header_t) == 8, telemetry_header_padded_by_compil
 
 #ifdef __cplusplus
 }
+
+template <typename T>
+const T* telemetry_get_payload(const telemetry_t* packet) {
+    if (packet->header.length != sizeof(T))
+        return nullptr;
+    return (T*)packet->payload;
+}
+
 #endif
 
 #endif /* TELEMETRY_H */

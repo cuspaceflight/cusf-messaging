@@ -24,7 +24,9 @@ extern "C" {
 
 #if FILE_TELEMETRY_ENABLED
 
-void file_telemetry_start(void);
+void file_telemetry_output_start(const char* filename, bool overwrite);
+
+void file_telemetry_input_start(const char* filename);
 
 bool file_telemetry_input_connected(void);
 

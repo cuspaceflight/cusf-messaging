@@ -4,7 +4,6 @@
 #include "impl/TQueue.h"
 #include <atomic>
 #include "component_state.h"
-#include "avionics_config.h"
 #include <memory>
 
 #define MAX_NUM_CONSUMERS 20

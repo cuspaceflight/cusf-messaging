@@ -2,6 +2,7 @@
 #include <can_interface.h>
 #include <config/telemetry_packets.h>
 #include <iostream>
+#include <component_state.h>
 #include "cpp_utils.h"
 
 #define READ_BUFFER_SIZE 255
@@ -19,6 +20,13 @@ typedef struct {
 static bool is_initialised = false;
 static std::ostream* s_stream = nullptr;
 
+static void print_formats() {
+    *s_stream << "StartFormatDescriptors" << std::endl;
+    *s_stream << "MPU9250Data,Accel X, Accel Y, Accel Z, Gyro X, Gyro Y, Gyro Z, Magno X, Magno Y, Magno Z" << std::endl;
+    *s_stream << "StateUpdate,Component Str, Component #, State, Overall State, Line Number" << std::endl;
+    *s_stream << "EndFormatDescriptors" << std::endl;
+}
+
 static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) {
     if (packet->header.id == ts_mpu9250_data) {
         mpu9250_data_t* data = (mpu9250_data_t*)packet->payload;
@@ -35,12 +43,21 @@ static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) 
         *s_stream << data->magno[0] << ',';
         *s_stream << data->magno[1] << ',';
         *s_stream << data->magno[2] << std::endl;
+    } else if (packet->header.id == ts_component_state) {
+        auto data = telemetry_get_payload<component_state_update_t>(packet);
+        const char* component = component_state_get_name((avionics_component_t) data->component);
+        *s_stream << "StateUpdate,";
+        *s_stream << component << ',';
+        *s_stream << (int)data->component << ',';
+        *s_stream << (int)data->state << ',';
+        *s_stream << (int)data->overall_state << ',';
+        *s_stream << (int)data->line_number*2 << std::endl;
     }
     return true;
 }
 
 
-MESSAGING_CONSUMER(messaging_consumer, 0, 0, 0, message_flags_dont_send_to_file, receive_packet, 100);
+MESSAGING_CONSUMER(messaging_consumer, 0, 0, 0, 0, receive_packet, 100);
 
 static void reader_thread() {
     while (s_stream != nullptr) {
@@ -59,6 +76,7 @@ CSVOutputFileDriver::CSVOutputFileDriver(const char* filename) {
     }
 
     if (s_stream && *s_stream) {
+        print_formats();
         is_initialised = true;
 
         messaging_consumer_init(&messaging_consumer);
