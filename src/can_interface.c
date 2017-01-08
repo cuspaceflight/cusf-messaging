@@ -28,12 +28,13 @@ static const multipacket_message_def_t multipacket_message_definitions[NUM_MULTI
         MULTIPACKET_DEFINITION(ts_adis16405_config, sizeof(adis16405_config_t)),
         MULTIPACKET_DEFINITION(ts_adis16405_data, sizeof(adis16405_data_t)),
         MULTIPACKET_DEFINITION(ts_state_estimate_data, sizeof(state_estimate_t)),
+        MULTIPACKET_DEFINITION(ts_ublox_nav, sizeof(ublox_nav_t)),
 };
 
-static bool checkDefinitions(void) {
+bool can_interface_check_multipacket_definitions(void) {
     for (int i = 0; i < NUM_MULTIPACKET_MESSAGES; i++) {
         const multipacket_message_def_t* def = &multipacket_message_definitions[i];
-        if (def->size_in_packets > 4) {
+        if (def->size_in_packets > MAX_SEQNO) {
             COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
             return false;
         }
@@ -46,7 +47,7 @@ static bool checkDefinitions(void) {
 }
 
 static void resetMultipacketMessage(multipacket_message_buffer_t* msg) {
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < MAX_SEQNO; i++) {
 		msg->is_valid[i] = false;
 	}
 }
@@ -59,7 +60,7 @@ static bool isMultipacketValid(const multipacket_message_def_t* def, multipacket
 }
 
 void can_interface_init(can_interface_t* id) {
-    if (!checkDefinitions())
+    if (!can_interface_check_multipacket_definitions())
         return;
 
     telemetry_allocator_init(id->telemetry_allocator);

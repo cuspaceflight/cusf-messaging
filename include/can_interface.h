@@ -10,10 +10,12 @@ extern "C" {
 
 typedef void(*can_interface_send_t)(uint16_t msg_id, bool can_rtr, uint8_t* data, uint8_t datalen);
 
-#define NUM_MULTIPACKET_MESSAGES 6
+#define NUM_MULTIPACKET_MESSAGES 7
+#define MAX_SEQNO 8
+
 typedef struct {
     uint8_t data_buffer[32];
-    bool is_valid[4];
+    bool is_valid[MAX_SEQNO];
 } multipacket_message_buffer_t;
 
 typedef struct can_interface_t {
@@ -26,6 +28,8 @@ typedef struct can_interface_t {
 #define CAN_INTERFACE(name, can_send, heap_size) \
     TELEMETRY_ALLOCATOR(name##_allocator, heap_size) \
     static can_interface_t name = {can_send, &name##_allocator, 0};
+
+bool can_interface_check_multipacket_definitions(void);
 
 void can_interface_init(can_interface_t* interface);
 

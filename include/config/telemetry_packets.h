@@ -101,6 +101,25 @@ typedef struct component_state_update_t {
 
 STATIC_ASSERT(sizeof(component_state_update_t) == 4, component_state_padded);
 
+// A selection of fields from the UBX-NAV_PVT packet
+typedef struct ublox_nav_t {
+    uint16_t year; // Year (UTC)
+    uint8_t month, day, hour, minute, second;
+    uint8_t valid; // Validity Flags
+    uint32_t t_acc;
+    int32_t nano;
+    uint8_t fix_type;
+    uint8_t flags;
+    uint8_t num_sv;
+    int32_t lon, lat;
+    int32_t height, h_msl;
+    uint32_t h_acc, v_acc;
+    int32_t velN, velE, velD;
+    uint32_t s_acc;
+    uint16_t p_dop;
+} ublox_nav_t;
+
+STATIC_ASSERT(sizeof(ublox_nav_t) == 64, ublox_nav_padded);
 
 #ifdef __cplusplus
 }

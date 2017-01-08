@@ -22,8 +22,9 @@ static std::ostream* s_stream = nullptr;
 
 static void print_formats() {
     *s_stream << "StartFormatDescriptors" << std::endl;
-    *s_stream << "MPU9250Data,Accel X, Accel Y, Accel Z, Gyro X, Gyro Y, Gyro Z, Magno X, Magno Y, Magno Z" << std::endl;
-    *s_stream << "StateUpdate,Component String, Component #, State, Overall State, Line Number" << std::endl;
+    *s_stream << "MPU9250Data, Accel X, Accel Y, Accel Z, Gyro X, Gyro Y, Gyro Z, Magno X, Magno Y, Magno Z" << std::endl;
+    *s_stream << "StateUpdate, Component String, Component #, State, Overall State, Line Number" << std::endl;
+    *s_stream << "Ublox, Fix Type, Latitude, Longitude, Height, Height MSL" << std::endl;
     *s_stream << "EndFormatDescriptors" << std::endl;
 }
 
@@ -52,6 +53,14 @@ static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) 
         *s_stream << (int)data->state << ',';
         *s_stream << (int)data->overall_state << ',';
         *s_stream << (int)data->line_number*2 << std::endl;
+    } else if (packet->header.id == ts_ublox_nav) {
+        auto data = telemetry_get_payload<ublox_nav_t>(packet);
+        *s_stream << "Ublox,";
+        *s_stream << (int)data->fix_type << ',';
+        *s_stream << data->lat << ',';
+        *s_stream << data->lon << ',';
+        *s_stream << data->height << ',';
+        *s_stream << data->h_msl << std::endl;
     }
     return true;
 }

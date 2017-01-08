@@ -48,6 +48,9 @@ typedef enum {
     TELEMETRY_SOURCE(ts_adis16405_config, ts_adis16405,                 0b000,    9),
     TELEMETRY_SOURCE(ts_adis16405_data, ts_adis16405,                   0b000,    9),
 
+    // UBLOX
+    TELEMETRY_SOURCE(ts_ublox, ts_m3imu,                                0b101,    8),
+    TELEMETRY_SOURCE(ts_ublox_nav, ts_ublox,                            0b000,    8),
 } telemetry_id_t;
 
 #ifdef __cplusplus
