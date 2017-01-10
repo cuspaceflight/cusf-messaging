@@ -30,7 +30,7 @@ static void print_formats() {
 
 static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) {
     if (packet->header.id == ts_mpu9250_data) {
-        mpu9250_data_t* data = (mpu9250_data_t*)packet->payload;
+        auto data = telemetry_get_payload<mpu9250_data_t>(packet);
         *s_stream << "MPU9250Data,";
 
         *s_stream << data->accel[0] << ',';

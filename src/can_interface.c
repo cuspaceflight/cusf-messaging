@@ -106,7 +106,7 @@ void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool
     multipacket_message_buffer_t* multipacket = &interface->multipacket_message_buffers[multipacket_index];
     const multipacket_message_def_t* def = &multipacket_message_definitions[multipacket_index];
 
-	uint8_t seqno = (uint8_t) (can_msg_id & def->seqno_mask) >> def->suffix_length;
+	uint8_t seqno = (uint8_t) ((can_msg_id & def->seqno_mask) >> def->suffix_length);
 
 	uint8_t* ptr = (uint8_t*)&multipacket->data_buffer;
 	ptr += seqno * 8;
@@ -149,11 +149,14 @@ bool can_interface_send(can_interface_t* interface, const telemetry_t* packet, m
     uint8_t* ptr = packet->payload;
     uint8_t remaining = packet->header.length;
     int i = 0;
-    do {
+    while (true) {
         interface->can_send((uint16_t) (packet->header.id | i << def->suffix_length), false, ptr, remaining > 8 ? (uint8_t)8 : remaining);
         ptr += 8;
         i++;
+
+        if (remaining < 8)
+            break;
         remaining -= 8;
-    } while (remaining > 0);
+    };
     return true;
 }

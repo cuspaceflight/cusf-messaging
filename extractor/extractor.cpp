@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
                 print_help();
                 return 1;
             }
-            input = argv[++i];
+            output = argv[++i];
         } else if (option == "--help" || option == "-h") {
             print_help();
             return 0;
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
         if (wait_for_input(1) != 0) {
             std::string str;
             std::cin >> str;
-            if (str == "quit")
+            if (str == "quit" || str == "q")
                 break;
         }
     }
