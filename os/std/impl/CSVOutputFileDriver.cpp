@@ -25,6 +25,7 @@ static void print_formats() {
     *s_stream << "MPU9250Data, Accel X, Accel Y, Accel Z, Gyro X, Gyro Y, Gyro Z, Magno X, Magno Y, Magno Z" << std::endl;
     *s_stream << "StateUpdate, Component String, Component #, State, Overall State, Line Number" << std::endl;
     *s_stream << "Ublox, Fix Type, Latitude, Longitude, Height, Height MSL" << std::endl;
+    *s_stream << "MS5611, Temperature, Pressure" << std::endl;
     *s_stream << "EndFormatDescriptors" << std::endl;
 }
 
@@ -61,6 +62,11 @@ static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) 
         *s_stream << data->lon << ',';
         *s_stream << data->height << ',';
         *s_stream << data->h_msl << std::endl;
+    } else if (packet->header.id == ts_ms5611_data) {
+        auto data = telemetry_get_payload<ms5611data_t>(packet);
+        *s_stream << "MS5611,";
+        *s_stream << data->temperature << ',';
+        *s_stream << data->pressure << std::endl;
     }
     return true;
 }

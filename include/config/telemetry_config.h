@@ -34,9 +34,8 @@ typedef enum {
 
 
     // MS5611
-    TELEMETRY_SOURCE(ts_ms5611, ts_m3imu,                               0b010,    8),
-    TELEMETRY_SOURCE(ts_ms5611_config, ts_ms5611,                       0b000,    9),
-    TELEMETRY_SOURCE(ts_ms5611_data, ts_ms5611,                         0b001,    9),
+    TELEMETRY_SOURCE(ts_ms5611, ts_m3imu,                               0b001010,11),
+    TELEMETRY_SOURCE(ts_ms5611_data, ts_ms5611,                         0,       11),
 
     // MPU9250
     TELEMETRY_SOURCE(ts_mpu9250, ts_m3imu,                              0b011,    8),
