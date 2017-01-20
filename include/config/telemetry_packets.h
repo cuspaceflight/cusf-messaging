@@ -112,9 +112,9 @@ typedef struct ublox_nav_t {
     uint8_t flags;
     uint8_t num_sv;
     int32_t lon, lat;
-    int32_t height, h_msl;
+    int32_t height, h_msl; // In mm
     uint32_t h_acc, v_acc;
-    int32_t velN, velE, velD;
+    int32_t velN, velE, velD; // In mm/sec
     uint32_t s_acc;
     uint16_t p_dop;
 } ublox_nav_t;

@@ -70,7 +70,8 @@ int main(int argc, char* argv[]) {
     }
 
     component_state_start(update_handler, true);
-    messaging_all_start();
+
+    messaging_all_start_options(!input, !input);
     file_telemetry_input_start(input);
     file_telemetry_output_start(output, overwrite);
 

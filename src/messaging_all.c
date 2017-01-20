@@ -8,16 +8,22 @@
 #include "file_telemetry.h"
 
 void messaging_all_start(void) {
+    messaging_all_start_options(true, true);
+}
+
+void messaging_all_start_options(bool can_telemetry_enabled, bool usb_telemetry_enabled) {
     component_state_start(NULL, true);
     checksum_init();
     telemetry_allocator_start();
     messaging_start();
 
 #if USB_TELEMETRY_ENABLED
-    usb_telemetry_start();
+    if (usb_telemetry_enabled)
+        usb_telemetry_start();
 #endif
 
 #if CAN_TELEMETRY_ENABLED
-    can_telemetry_start();
+    if (can_telemetry_enabled)
+        can_telemetry_start();
 #endif
 }

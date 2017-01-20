@@ -1,6 +1,7 @@
 #include "platform.h"
 #include <atomic>
 #include <stdlib.h>
+#include <thread>
 
 uint32_t counter_value = 0;
 
@@ -31,5 +32,5 @@ void platform_set_thread_name(const char* name) {
 }
 
 void platform_thread_yield() {
-
+    std::this_thread::yield();
 }

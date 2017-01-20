@@ -44,6 +44,7 @@ messaging_send_return_codes messaging_producer_send(message_producer_t* producer
 // If silent is specified will not invoke the callback function
 // This function can be called recursively (e.g flushing buffer during callback)
 // NB: A blocking call on a paused consumer will deadlock if no packets in its buffer.
+// TODO: Add variable timeout length
 messaging_receive_return_codes messaging_consumer_receive(message_consumer_t* consumer_id, bool blocking, bool silent);
 
 // Pause a consumer - no further packets will be enqueued into its buffer until it is resumed
