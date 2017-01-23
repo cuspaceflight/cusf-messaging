@@ -25,6 +25,8 @@ void component_state_start(component_state_update_handler_t handler, bool enable
     update_handler = handler;
 
     is_started = true;
+
+    messaging_enabled = enable_messages;
 }
 
 void component_state_register_with_messaging(void) {
