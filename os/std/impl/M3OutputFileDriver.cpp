@@ -15,7 +15,7 @@ typedef struct {
 
 
 
-static bool is_initialised = false;
+static bool is_running = false;
 static std::ofstream* s_stream = nullptr;
 static uint32_t last_timestamp = 0;
 
@@ -52,16 +52,17 @@ static void reader_thread() {
     while (s_stream != nullptr) {
         messaging_consumer_receive(&messaging_consumer, true, false);
     }
+    while(s_stream != nullptr && messaging_consumer_receive(&messaging_consumer, false, false) == messaging_receive_ok);
 }
 
 M3OutputFileDriver::M3OutputFileDriver(const char* filename) {
-    UtilAssert(!is_initialised, "Only one serial driver can be active at once");
+    UtilAssert(!is_running && !s_stream, "Only one serial driver can be active at once");
 
     output_stream = std::make_unique<std::ofstream>(filename, std::ofstream::binary | std::ofstream::out);
 
     if (output_stream && *output_stream) {
 
-        is_initialised = true;
+        is_running = true;
         s_stream = output_stream.get();
 
         messaging_consumer_init(&messaging_consumer);
@@ -72,17 +73,18 @@ M3OutputFileDriver::M3OutputFileDriver(const char* filename) {
 }
 
 M3OutputFileDriver::~M3OutputFileDriver() {
-    if (!is_initialised)
+    if (!is_running)
         return; // If initialisation failed we don't have anything to clean up
-
-    is_initialised = false;
-    s_stream = nullptr;
 
     messaging_consumer_terminate(&messaging_consumer);
 
+    is_running = false;
+
     thread_.join();
+
+    s_stream = nullptr;
 }
 
 bool M3OutputFileDriver::getConnected() {
-    return is_initialised && output_stream && *output_stream;
+    return is_running && output_stream && *output_stream;
 }

@@ -12,6 +12,8 @@ public:
 
     void enqueue(T val) {
         std::lock_guard<std::mutex> lock(mutex_);
+        if (!running)
+            return;
         queue_.push(val);
         condition_.notify_one();
     }
@@ -19,9 +21,9 @@ public:
     bool dequeue(T& ret) {
         std::unique_lock<std::mutex> lock(mutex_);
         while (queue_.empty()) {
-            condition_.wait(lock);
             if (!running)
                 return false;
+            condition_.wait(lock);
         }
         ret = queue_.front();
         queue_.pop();

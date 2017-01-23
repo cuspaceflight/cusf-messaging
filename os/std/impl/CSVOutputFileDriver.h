@@ -10,5 +10,5 @@ public:
 
 private:
     std::thread thread_;
-    std::unique_ptr<std::ostream> output_stream;
+    std::unique_ptr<std::ofstream> output_stream;
 };

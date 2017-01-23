@@ -3,7 +3,7 @@
 #include "messaging.h"
 #include "cpp_utils.h"
 
-static bool is_initialised = false;
+static volatile bool is_initialised = false;
 static std::ifstream* s_stream = nullptr;
 
 typedef struct {

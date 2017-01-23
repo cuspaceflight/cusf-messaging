@@ -17,7 +17,7 @@ typedef struct {
 } __attribute__((packed)) DLPacket;
 
 
-static bool is_initialised = false;
+static bool is_running = false;
 static std::ostream* s_stream = nullptr;
 
 static void print_formats() {
@@ -75,13 +75,14 @@ static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) 
 MESSAGING_CONSUMER(messaging_consumer, 0, 0, 0, 0, receive_packet, 100);
 
 static void reader_thread() {
-    while (s_stream != nullptr) {
+    while (s_stream != nullptr && is_running) {
         messaging_consumer_receive(&messaging_consumer, true, false);
     }
+    while(s_stream != nullptr && messaging_consumer_receive(&messaging_consumer, false, false) == messaging_receive_ok);
 }
 
 CSVOutputFileDriver::CSVOutputFileDriver(const char* filename) {
-    UtilAssert(!is_initialised, "Only one serial driver can be active at once");
+    UtilAssert(!is_running && !s_stream, "Only one serial driver can be active at once");
 
     if (std::string("stdout.csv") != filename) {
         output_stream = std::make_unique<std::ofstream>(filename, std::ofstream::out);
@@ -92,7 +93,7 @@ CSVOutputFileDriver::CSVOutputFileDriver(const char* filename) {
 
     if (s_stream && *s_stream) {
         print_formats();
-        is_initialised = true;
+        is_running = true;
 
         messaging_consumer_init(&messaging_consumer);
 
@@ -103,17 +104,18 @@ CSVOutputFileDriver::CSVOutputFileDriver(const char* filename) {
 }
 
 CSVOutputFileDriver::~CSVOutputFileDriver() {
-    if (!is_initialised)
+    if (!is_running)
         return; // If initialisation failed we don't have anything to clean up
 
-    is_initialised = false;
-    s_stream = nullptr;
+    is_running = false;
 
     messaging_consumer_terminate(&messaging_consumer);
 
     thread_.join();
+
+    s_stream = nullptr;
 }
 
 bool CSVOutputFileDriver::getConnected() {
-    return is_initialised && s_stream && *s_stream;
+    return is_running && s_stream && *s_stream;
 }

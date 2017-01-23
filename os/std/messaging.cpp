@@ -186,5 +186,6 @@ void messaging_resume_consumer(message_consumer_t* consumer) {
 }
 
 void messaging_consumer_terminate(message_consumer_t *consumer_id) {
+    consumer_id->impl->is_paused = true;
     consumer_id->impl->mailbox.close();
 }

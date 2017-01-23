@@ -70,7 +70,8 @@ messaging_send_return_codes messaging_send(telemetry_t* packet, message_metadata
 
 
 #if defined MESSAGING_OS_STD
-// Unblocks any messaging threads waiting on packets
+// Unblocks any messaging threads waiting on packets and prevents new packets being enqueued to this consumer
+// messaging_consumer_receive can still be called on this, however, a blocking call will deadlock
 void messaging_consumer_terminate(message_consumer_t* consumer_id);
 #endif
 
