@@ -10,11 +10,11 @@ extern "C" {
 
 typedef void(*can_interface_send_t)(uint16_t msg_id, bool can_rtr, uint8_t* data, uint8_t datalen);
 
-#define NUM_MULTIPACKET_MESSAGES 7
+#define NUM_MULTIPACKET_MESSAGES 5
 #define MAX_SEQNO 8
 
 typedef struct {
-    uint8_t data_buffer[32];
+    uint8_t data_buffer[MAX_SEQNO * 8];
     bool is_valid[MAX_SEQNO];
 } multipacket_message_buffer_t;
 

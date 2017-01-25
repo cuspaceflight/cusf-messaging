@@ -1,6 +1,7 @@
 #include "can_interface.h"
 #include <string.h>
 #include <component_state.h>
+#include <can_interface.h>
 #include "telemetry_packets.h"
 
 typedef struct {
@@ -24,8 +25,6 @@ typedef struct {
 
 static const multipacket_message_def_t multipacket_message_definitions[NUM_MULTIPACKET_MESSAGES] = {
         MULTIPACKET_DEFINITION(ts_mpu9250_data, sizeof(mpu9250_data_t)),
-        MULTIPACKET_DEFINITION(ts_mpu9250_config, sizeof(mpu9250_config_t)),
-        MULTIPACKET_DEFINITION(ts_adis16405_config, sizeof(adis16405_config_t)),
         MULTIPACKET_DEFINITION(ts_adis16405_data, sizeof(adis16405_data_t)),
         MULTIPACKET_DEFINITION(ts_state_estimate_data, sizeof(state_estimate_t)),
         MULTIPACKET_DEFINITION(ts_ublox_nav, sizeof(ublox_nav_t)),
@@ -97,6 +96,10 @@ void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool
 	if (!interface->initialized)
 		return;
 
+    // There was a bug in the output for a while that would insert invalid empty packets - we ignore them
+    if (datalen == 0)
+        return;
+
     int multipacket_index = getMultipacketIndex(can_msg_id);
     if (multipacket_index < 0) {
         handleFullPacket(interface, can_msg_id, data, datalen, timestamp);
@@ -111,10 +114,20 @@ void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool
 	uint8_t* ptr = (uint8_t*)&multipacket->data_buffer;
 	ptr += seqno * 8;
 
+    if (seqno >= def->size_in_packets) {
+        COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
+        return;
+    }
+
 	if (seqno*8 + datalen > def->size_in_bytes) {
 		COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
 		return;
 	}
+
+    if (multipacket->is_valid[seqno]) {
+        COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
+        return;
+    }
 
 	memcpy(ptr, data, datalen);
 
@@ -150,11 +163,16 @@ bool can_interface_send(can_interface_t* interface, const telemetry_t* packet, m
     uint8_t remaining = packet->header.length;
     int i = 0;
     while (true) {
+        if ((i << def->suffix_length) & ~def->seqno_mask || (i << def->suffix_length) > 0b11111111111) {
+            COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
+            return true;
+        }
+
         interface->can_send((uint16_t) (packet->header.id | i << def->suffix_length), false, ptr, remaining > 8 ? (uint8_t)8 : remaining);
         ptr += 8;
         i++;
 
-        if (remaining < 8)
+        if (remaining <= 8)
             break;
         remaining -= 8;
     };

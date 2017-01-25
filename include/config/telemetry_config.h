@@ -39,12 +39,10 @@ typedef enum {
 
     // MPU9250
     TELEMETRY_SOURCE(ts_mpu9250, ts_m3imu,                              0b011,    8),
-    TELEMETRY_SOURCE(ts_mpu9250_config, ts_mpu9250,                     0b000,    9),
     TELEMETRY_SOURCE(ts_mpu9250_data, ts_mpu9250,                       0b001,    9),
 
     // ADIS16405
     TELEMETRY_SOURCE(ts_adis16405, ts_m3imu,                            0b110,    8),
-    TELEMETRY_SOURCE(ts_adis16405_config, ts_adis16405,                 0b000,    9),
     TELEMETRY_SOURCE(ts_adis16405_data, ts_adis16405,                   0b000,    9),
 
     // UBLOX
