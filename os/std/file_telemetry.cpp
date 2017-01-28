@@ -9,15 +9,44 @@
 #include "impl/CSVOutputFileDriver.h"
 
 
-#if FILE_TELEMETRY_ENABLED
-
-std::unique_ptr<IOutputFileDriver> out_driver;
-std::unique_ptr<IInputFileDriver> in_driver;
-
+#if FILE_TELEMETRY_INPUT_ENABLED || FILE_TELEMETRY_OUTPUT_ENABLED
 inline bool fileExists(const std::string& fileName) {
     std::ifstream infile(fileName);
     return infile.good();
 }
+#endif
+
+
+#if FILE_TELEMETRY_INPUT_ENABLED
+std::unique_ptr<IInputFileDriver> in_driver;
+
+void file_telemetry_input_start(const char* filename) {
+    if (!filename || in_driver)
+        return;
+
+    if (!fileExists(filename)) {
+        printf("Input file not found: %s\n", filename);
+        return;
+    }
+    std::string fn(filename);
+    auto extension = fn.substr(fn.find_last_of(".") + 1);
+
+    if (extension == "tel")
+        in_driver = std::make_unique<InputFileDriver>(filename);
+    else if (extension == "m3tel")
+        in_driver = std::make_unique<M3InputFileDriver>(filename);
+    else
+        printf("Unrecognised input format %s", extension.c_str());
+}
+
+bool file_telemetry_input_connected(void) {
+    return !!in_driver && in_driver->getConnected();
+}
+
+#endif
+
+#if FILE_TELEMETRY_OUTPUT_ENABLED
+std::unique_ptr<IOutputFileDriver> out_driver;
 
 void file_telemetry_output_start(const char* filename, bool overwrite) {
     if (!filename || out_driver)
@@ -52,31 +81,9 @@ void file_telemetry_output_start(const char* filename, bool overwrite) {
 
 }
 
-void file_telemetry_input_start(const char* filename) {
-    if (!filename || in_driver)
-        return;
 
-    if (!fileExists(filename)) {
-        printf("Input file not found: %s\n", filename);
-        return;
-    }
-    std::string fn(filename);
-    auto extension = fn.substr(fn.find_last_of(".") + 1);
-
-    if (extension == "tel")
-        in_driver = std::make_unique<InputFileDriver>(filename);
-    else if (extension == "m3tel")
-        in_driver = std::make_unique<M3InputFileDriver>(filename);
-    else
-        printf("Unrecognised input format %s", extension.c_str());
-}
-
-bool file_telemetry_input_connected(void) {
-    return !!in_driver && in_driver->getConnected();
-}
 
 bool file_telemetry_output_connected(void) {
     return !!out_driver && out_driver->getConnected();
 }
-
 #endif
