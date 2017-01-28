@@ -5,6 +5,7 @@
 #include "messaging.h"
 #include "compilermacros.h"
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -26,7 +27,9 @@ extern "C" {
 #if defined MESSAGING_OS_STD
 #define FILE_TELEMETRY_OUTPUT_ENABLED 1
 #elif defined MESSAGING_OS_CHIBIOS
-#define FILE_TELEMETRY_OUTPUT_ENABLED 0
+#include "hal.h"
+
+#define FILE_TELEMETRY_OUTPUT_ENABLED HAL_USE_SDC
 #else
 #error Unrecognised Messaging OS
 #endif
@@ -35,7 +38,7 @@ extern "C" {
 
 #if FILE_TELEMETRY_OUTPUT_ENABLED
 
-void file_telemetry_output_start(const char* filename, bool overwrite);
+bool file_telemetry_output_start(const char* filename, bool overwrite);
 
 bool file_telemetry_output_connected(void);
 

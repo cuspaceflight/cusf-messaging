@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    component_state_start(update_handler, true);
+    component_state_start(update_handler, false);
 
     messaging_all_start_options(!input, !input);
     file_telemetry_input_start(input);

@@ -2,9 +2,6 @@
 #include <can_interface.h>
 #include "cpp_utils.h"
 
-#define READ_BUFFER_SIZE 255
-#define WRITE_BUFFER_SIZE 255
-
 typedef struct {
     uint16_t ID;
     uint8_t RTR;
@@ -12,8 +9,6 @@ typedef struct {
     uint8_t data[8];
     uint32_t timestamp;
 } __attribute__((packed)) DLPacket;
-
-
 
 static bool is_running = false;
 static std::ofstream* s_stream = nullptr;

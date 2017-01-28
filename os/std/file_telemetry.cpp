@@ -48,9 +48,9 @@ bool file_telemetry_input_connected(void) {
 #if FILE_TELEMETRY_OUTPUT_ENABLED
 std::unique_ptr<IOutputFileDriver> out_driver;
 
-void file_telemetry_output_start(const char* filename, bool overwrite) {
+bool file_telemetry_output_start(const char* filename, bool overwrite) {
     if (!filename || out_driver)
-        return;
+        return false;
 
     std::string output_file_name = std::string(filename);
     std::string output_file_extension = output_file_name.substr(1 + output_file_name.find_last_of('.'));
@@ -61,7 +61,7 @@ void file_telemetry_output_start(const char* filename, bool overwrite) {
     if (fileExists(name)) {
         if (!overwrite) {
             fprintf(stderr, "Output file already exists\n");
-            return;
+            return false;
         } else {
             printf("Overwriting existing file: %s\n", name.c_str());
         }
@@ -79,6 +79,7 @@ void file_telemetry_output_start(const char* filename, bool overwrite) {
         printf("Unrecognised output format %s", output_file_extension.c_str());
     }
 
+    return true;
 }
 
 

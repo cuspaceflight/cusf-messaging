@@ -14,6 +14,9 @@ typedef enum {
 	avionics_component_can_telemetry,
     avionics_component_world_mag_model,
 	avionics_component_ublox,
+	avionics_component_sd_card,
+	avionics_component_file_telemetry_output,
+    avionics_component_state_board_config,
     avionics_component_max // This must be last
 } avionics_component_t;
 
