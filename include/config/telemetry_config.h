@@ -28,10 +28,7 @@ typedef enum {
 
     // State Estimation
     TELEMETRY_SOURCE(ts_state_estimation, ts_m3imu,                     0b001,    8),
-    TELEMETRY_SOURCE(ts_state_estimate_config, ts_state_estimation,     0b000,   11),
-    TELEMETRY_SOURCE(ts_state_estimate_status, ts_state_estimation,     0b010,   11),
-    TELEMETRY_SOURCE(ts_state_estimate_data, ts_state_estimation,       0b001,    9),
-
+    TELEMETRY_SOURCE(ts_state_estimate_data, ts_state_estimation,       0b000,    8),
 
     // MS5611
     TELEMETRY_SOURCE(ts_ms5611, ts_m3imu,                               0b001010,11),

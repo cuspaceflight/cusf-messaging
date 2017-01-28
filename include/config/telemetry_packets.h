@@ -23,13 +23,6 @@ typedef struct ms5611data_t {
 
 STATIC_ASSERT(sizeof(ms5611data_t) == 8, ms5611data_padded);
 
-typedef struct state_estimate_t {
-    float orientation_q[4];
-    float angular_velocity[3];
-} state_estimate_t;
-
-STATIC_ASSERT(sizeof(state_estimate_t) == 28, ms5611data_padded);
-
 typedef struct adis16405_data_t {
     int16_t supply;
     int16_t gyro[3];
@@ -67,6 +60,17 @@ typedef struct ublox_nav_t {
 } ublox_nav_t;
 
 STATIC_ASSERT(sizeof(ublox_nav_t) == 64, ublox_nav_padded);
+
+
+typedef struct state_estimate_t {
+    float orientation_q[4];
+    float angular_velocity[3];
+
+    float latitude, longitude;
+    float altitude; // Altitude above WGS84 Ellipsoid (i.e not MSL)
+} state_estimate_t;
+
+STATIC_ASSERT(sizeof(state_estimate_t) == 40, state_estimate_padded);
 
 #ifdef __cplusplus
 }
