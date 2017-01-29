@@ -1,4 +1,4 @@
-#include <memory.h>
+#include <string.h>
 #include "file_telemetry.h"
 
 #if FILE_TELEMETRY_OUTPUT_ENABLED
