@@ -25,7 +25,7 @@ static SDFILE file;
 
 static SDRESULT open_file(void) {
     static SDFS file_system;
-    return microsd_open_file_inc(&file, "log", "bin", &file_system);
+    return microsd_open_file_inc(&file, "log", "m3tel", &file_system);
 }
 
 static void flush_buffer(void) {
