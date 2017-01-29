@@ -9,27 +9,29 @@ if (UNIX)
 elseif (DEFINED ChibiOS_INCLUDE_DIRS)
     add_subdirectory(os/chibios)
     set(OS_INCLUDES ${ChibiOS_INCLUDE_DIRS})
-    set(OS_LIBS fatfs)
+    if (BUILD_FATFS)
+        set(OS_LIBS fatfs)
+    endif ()
 else ()
     message(FATAL_ERROR "Platform not supported")
 endif ()
 
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     # Enable warnings
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -Werror")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-long-long -Werror")
-endif()
+endif ()
 
 add_library(messaging ${HEADERS} ${SOURCES})
 
-target_include_directories ( messaging PUBLIC
+target_include_directories(messaging PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/config
         ${OS_INCLUDES}
-)
+        )
 
 target_link_libraries(messaging PRIVATE ${OS_LIBS})
 
 if (UNIX)
     add_subdirectory(extractor)
-endif()
+endif ()
