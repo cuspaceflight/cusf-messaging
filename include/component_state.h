@@ -24,6 +24,8 @@ avionics_component_state_t component_state_get_overall_state(void);
 
 const char* component_state_get_name(avionics_component_t component);
 
+void component_state_send_overall(void);
+
 #ifdef __cplusplus
 }
 #endif

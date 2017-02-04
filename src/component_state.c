@@ -97,7 +97,20 @@ const char *component_state_get_name(avionics_component_t component) {
             return "World Magnetic Model";
         case avionics_component_ublox:
             return "Ublox";
+        case avionics_component_sd_card:
+            return "SD Card";
+        case avionics_component_file_telemetry_output:
+            return "File Telemetry Output";
+        case avionics_component_state_board_config:
+            return "Board Config";
         default:
             return "Unknown Component";
+    }
+}
+
+void component_state_send_overall(void) {
+    for (int i = 0; i < avionics_component_max; i++) {
+        avionics_component_state_t state = (avionics_component_state_t) component_states[i];
+        component_state_update((avionics_component_t) i, state, 0);
     }
 }
