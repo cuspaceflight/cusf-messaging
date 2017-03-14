@@ -39,6 +39,8 @@ int main(int argc, char* argv[]) {
     const char* output = nullptr;
     bool overwrite = false;
 
+    int discard = 0;
+
     for (int i = 1; i < argc; i++) {
         std::string option = std::string(argv[i]);
         if (option == "--input" || option == "-i") {
@@ -62,6 +64,13 @@ int main(int argc, char* argv[]) {
             output = "stdout.csv";
         } else if (option == "--replace" || option == "-r") {
             overwrite = true;
+        } else if (option == "--discard" || option == "-d") {
+            if (i+1 == argc) {
+                printf("Invalid Arguments\n");
+                print_help();
+                return 1;
+            }
+            discard = std::stoi(argv[++i]);
         } else {
             printf("Invalid Option %s\n", argv[i]);
             print_help();
@@ -72,13 +81,18 @@ int main(int argc, char* argv[]) {
     component_state_start(update_handler, false);
 
     messaging_all_start_options(!input, !input);
-    file_telemetry_input_start(input);
-    file_telemetry_output_start(output, overwrite);
 
-    if (!file_telemetry_output_connected()) {
-        fprintf(stderr, "No output specified\n");
-        return 1;
+    if (!discard) {
+        file_telemetry_output_start(output, overwrite);
+
+        if (!file_telemetry_output_connected()) {
+            fprintf(stderr, "No output specified\n");
+            return 1;
+        }
+        discard--;
     }
+
+    file_telemetry_input_start(input);
 
     int input_count = 0;
     if (usb_telemetry_connected())
@@ -102,6 +116,20 @@ int main(int argc, char* argv[]) {
             std::cin >> str;
             if (str == "quit" || str == "q")
                 break;
+        }
+
+        if (discard > 0) {
+            printf("Discarding Data for second\n");
+            discard--;
+        } else if (discard == 0) {
+            printf("Connecting output\n");
+            file_telemetry_output_start(output, overwrite);
+
+            if (!file_telemetry_output_connected()) {
+                fprintf(stderr, "No output specified\n");
+                return 1;
+            }
+            discard--;
         }
     }
 
