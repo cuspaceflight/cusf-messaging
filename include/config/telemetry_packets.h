@@ -63,15 +63,16 @@ STATIC_ASSERT(sizeof(ublox_nav_t) == 64, ublox_nav_padded);
 
 
 typedef struct state_estimate_t {
-    uint32_t data_timestamp;
     float orientation_q[4];
     float angular_velocity[3];
 
-    float latitude, longitude;
-    float altitude; // Altitude above WGS84 Ellipsoid (i.e not MSL)
+    // North, East, Down using WGS84 Ellipsoid
+    float position[3];
+    float velocity[3];
+    float acceleration[3];
 } state_estimate_t;
 
-STATIC_ASSERT(sizeof(state_estimate_t) == 44, state_estimate_padded);
+STATIC_ASSERT(sizeof(state_estimate_t) == 64, state_estimate_padded);
 
 #ifdef __cplusplus
 }
