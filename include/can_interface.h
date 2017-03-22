@@ -15,7 +15,7 @@ typedef void(*can_interface_send_t)(uint16_t msg_id, bool can_rtr, uint8_t* data
 
 typedef struct {
     uint8_t data_buffer[MAX_SEQNO * 8];
-    bool is_valid[MAX_SEQNO];
+    int valid_idx;
 } multipacket_message_buffer_t;
 
 typedef struct can_interface_t {

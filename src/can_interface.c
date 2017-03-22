@@ -47,16 +47,11 @@ bool can_interface_check_multipacket_definitions(void) {
 }
 
 static void resetMultipacketMessage(multipacket_message_buffer_t* msg) {
-	for (int i = 0; i < MAX_SEQNO; i++) {
-		msg->is_valid[i] = false;
-	}
+	msg->valid_idx = 0;
 }
 
 static bool isMultipacketValid(const multipacket_message_def_t* def, multipacket_message_buffer_t* msg) {
-	for (int i = 0; i < def->size_in_packets; i++)
-		if (!msg->is_valid[i])
-			return false;
-	return true;
+	return def->size_in_packets == msg->valid_idx;
 }
 
 void can_interface_init(can_interface_t* id) {
@@ -112,6 +107,11 @@ void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool
 
 	uint8_t seqno = (uint8_t) ((can_msg_id & def->seqno_mask) >> def->suffix_length);
 
+    if (seqno != multipacket->valid_idx) {
+        multipacket->valid_idx = 0;
+        return;
+    }
+
 	uint8_t* ptr = (uint8_t*)&multipacket->data_buffer;
 	ptr += seqno * 8;
 
@@ -125,14 +125,9 @@ void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool
 		return;
 	}
 
-    if (multipacket->is_valid[seqno]) {
-        COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
-        return;
-    }
-
 	memcpy(ptr, data, datalen);
 
-	multipacket->is_valid[seqno] = true;
+	multipacket->valid_idx++;
 
 	if (isMultipacketValid(def, multipacket)) {
 		handleFullPacket(interface, def->base_id, multipacket->data_buffer, def->size_in_bytes, timestamp);

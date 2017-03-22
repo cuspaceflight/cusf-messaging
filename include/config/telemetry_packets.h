@@ -66,8 +66,8 @@ typedef struct state_estimate_t {
     float orientation_q[4];
     float angular_velocity[3];
 
-    // North, East, Down using WGS84 Ellipsoid
-    float position[3];
+    // East, North, Up using WGS84 Ellipsoid
+    float position[3]; // Latitude, Longitude, Elevation
     float velocity[3];
     float acceleration[3];
 } state_estimate_t;
