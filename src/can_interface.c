@@ -29,6 +29,7 @@ static const multipacket_message_def_t multipacket_message_definitions[NUM_MULTI
         MULTIPACKET_DEFINITION(ts_state_estimate_data, sizeof(state_estimate_t)),
         MULTIPACKET_DEFINITION(ts_ublox_nav, sizeof(ublox_nav_t)),
         MULTIPACKET_DEFINITION(ts_state_estimate_data, sizeof(state_estimate_t)),
+        MULTIPACKET_DEFINITION(ts_state_estimate_debug_data, sizeof(state_estimate_t)),
 };
 
 bool can_interface_check_multipacket_definitions(void) {

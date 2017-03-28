@@ -30,6 +30,10 @@ typedef enum {
     TELEMETRY_SOURCE(ts_state_estimation, ts_m3imu,                     0b001,    8),
     TELEMETRY_SOURCE(ts_state_estimate_data, ts_state_estimation,       0b000,    8),
 
+    // State Estimation Debug
+    TELEMETRY_SOURCE(ts_state_estimation_debug, ts_m3imu,               0b111,    8),
+    TELEMETRY_SOURCE(ts_state_estimate_debug_data, ts_state_estimation_debug, 0b000,    8),
+
     // MS5611
     TELEMETRY_SOURCE(ts_ms5611, ts_m3imu,                               0b001010,11),
     TELEMETRY_SOURCE(ts_ms5611_data, ts_ms5611,                         0,       11),

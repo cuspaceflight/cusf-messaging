@@ -32,6 +32,7 @@ static void print_help() {
     printf("-o, --output               Specify output file - the format will be determined by the extension\n");
     printf("-r, --replace              Overwrite existing files\n");
     printf("-s, --stdout               Print CSV output to stdout\n");
+    printf("-d, --discard              Discards the first n seconds of data - useful to purge USB caches\n");
 }
 
 int main(int argc, char* argv[]) {
