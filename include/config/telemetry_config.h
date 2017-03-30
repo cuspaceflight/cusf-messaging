@@ -16,6 +16,11 @@ typedef enum {
     ts_all_mask = 0b00000000000,
     ts_all_suffix_length = 0,
 
+
+    //
+    // Can be sent over CAN BUS and stored in m3tel format
+    //
+
     TELEMETRY_SOURCE(ts_m3fc, ts_all,                                   1,        5),
     TELEMETRY_SOURCE(ts_m3psu, ts_all,                                  2,        5),
     TELEMETRY_SOURCE(ts_m3pyro, ts_all,                                 3,        5),
@@ -23,16 +28,8 @@ typedef enum {
     TELEMETRY_SOURCE(ts_m3imu, ts_all,                                  5,        5),
     TELEMETRY_SOURCE(ts_m3dl, ts_all,                                   6,        5),
 
-
+    // Component State
     TELEMETRY_SOURCE(ts_component_state, ts_m3imu,                      0,       11),
-
-    // State Estimation
-    TELEMETRY_SOURCE(ts_state_estimation, ts_m3imu,                     0b001,    8),
-    TELEMETRY_SOURCE(ts_state_estimate_data, ts_state_estimation,       0b000,    8),
-
-    // State Estimation Debug
-    TELEMETRY_SOURCE(ts_state_estimation_debug, ts_m3imu,               0b111,    8),
-    TELEMETRY_SOURCE(ts_state_estimate_debug_data, ts_state_estimation_debug, 0b000,    8),
 
     // MS5611
     TELEMETRY_SOURCE(ts_ms5611, ts_m3imu,                               0b001010,11),
@@ -46,9 +43,23 @@ typedef enum {
     TELEMETRY_SOURCE(ts_adis16405, ts_m3imu,                            0b110,    8),
     TELEMETRY_SOURCE(ts_adis16405_data, ts_adis16405,                   0b000,    9),
 
+
+    //
+    // Cannot be sent over CAN BUS and cannot be stored in m3tel format
+    //
+
+    TELEMETRY_SOURCE(ts_spalax, ts_all,                                 31,       5),
+
+    // State Estimation
+    TELEMETRY_SOURCE(ts_state_estimation, ts_spalax,                    0b00000,   10),
+    TELEMETRY_SOURCE(ts_state_estimate_data, ts_state_estimation,       0b0,       11),
+    TELEMETRY_SOURCE(ts_state_estimate_debug, ts_state_estimation,      0b1,       11),
+
+
     // UBLOX
-    TELEMETRY_SOURCE(ts_ublox, ts_m3imu,                                0b101,    8),
-    TELEMETRY_SOURCE(ts_ublox_nav, ts_ublox,                            0b000,    8),
+    TELEMETRY_SOURCE(ts_ublox, ts_spalax,                               0b00001,   10),
+    TELEMETRY_SOURCE(ts_ublox_nav, ts_ublox,                            0b0,       11),
+
 } telemetry_id_t;
 
 #ifdef __cplusplus
