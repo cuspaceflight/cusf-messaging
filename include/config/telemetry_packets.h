@@ -76,6 +76,8 @@ STATIC_ASSERT(sizeof(state_estimate_t) == 64, state_estimate_padded);
 
 typedef struct state_estimate_debug_t {
     float gyro_bias[3];
+    float accel_bias[3];
+    float magno_bias[3];
 } state_estimate_debug_t;
 
 #ifdef __cplusplus
