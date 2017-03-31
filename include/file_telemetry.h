@@ -50,6 +50,8 @@ void file_telemetry_input_start(const char* filename);
 
 bool file_telemetry_input_connected(void);
 
+void file_telemetry_input_stop();
+
 #endif
 
 #ifdef __cplusplus

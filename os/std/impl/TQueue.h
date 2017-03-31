@@ -41,6 +41,11 @@ public:
         condition_.notify_all();
     }
 
+    void open() {
+        std::unique_lock<std::mutex> lock(mutex_);
+        running = true;
+    }
+
 private:
     std::queue<T> queue_;
     mutable std::mutex mutex_;

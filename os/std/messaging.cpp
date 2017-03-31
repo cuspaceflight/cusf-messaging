@@ -84,8 +84,12 @@ extern "C" bool messaging_producer_init(message_producer_t* producer) {
 // Initialise a consumer - returns false on error
 extern "C" bool messaging_consumer_init(message_consumer_t* consumer) {
     std::lock_guard<std::mutex> lock(consumer_register_mutex);
-    if (consumer->impl != nullptr)
+    if (consumer->impl != nullptr) {
+        // It may have previously been closed, in which case we reopen it
+        consumer->impl->mailbox.open();
+        consumer->impl->is_paused = false;
         return true; // We assume it has already been initialised
+    }
 
     if (cur_consumer_pool_index >= MAX_NUM_CONSUMERS) {
         COMPONENT_STATE_UPDATE(avionics_component_messaging, state_error);

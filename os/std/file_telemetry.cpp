@@ -43,6 +43,10 @@ bool file_telemetry_input_connected(void) {
     return !!in_driver && in_driver->getConnected();
 }
 
+void file_telemetry_input_stop() {
+    in_driver = nullptr;
+}
+
 #endif
 
 #if FILE_TELEMETRY_OUTPUT_ENABLED
