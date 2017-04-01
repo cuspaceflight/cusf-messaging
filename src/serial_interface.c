@@ -67,7 +67,7 @@ bool serial_interface_read_bytes_to_buffer(serial_interface_t* serial_interface,
             uint8_t next_byte = serial_interface->stream_get();
             if (next_byte != 0x5E && next_byte != 0x5D)
                 return false;
-            buffer[i] = next_byte ^ 0x20;
+            buffer[i] = (uint8_t) (next_byte ^ 0x20);
         } else {
             buffer[i] = byte;
         }

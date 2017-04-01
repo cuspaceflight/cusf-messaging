@@ -25,6 +25,7 @@ static bool stream_put(uint8_t byte) {
 
 static bool stream_flush() {
     s_stream->write((const char*)write_buffer, write_buffer_index);
+    write_buffer_index = 0;
     return true;
 }
 
