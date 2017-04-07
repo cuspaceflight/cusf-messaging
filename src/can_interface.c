@@ -5,37 +5,36 @@
 #include "telemetry_packets.h"
 
 typedef struct {
-    uint16_t base_id;
+    uint16_t telemetry_id;
     uint8_t size_in_bytes;
-    uint8_t suffix_length;
-
     uint8_t size_in_packets;
-    uint16_t seqno_mask;
-} multipacket_message_def_t;
+
+    uint8_t remapped_id;
+    uint8_t remapped_board;
+} can_mapping_t;
 
 
-#define MULTIPACKET_DEFINITION(_base_id_, _size_in_bytes) \
+#define CAN_MAPPING(_telemetry_id_, _size_in_bytes, _remapped_id_, _remapped_board_) \
 {\
-    .base_id = _base_id_, \
+    .telemetry_id = _telemetry_id_, \
     .size_in_bytes = _size_in_bytes, \
     .size_in_packets = (uint8_t) ((_size_in_bytes + 7) / 8), \
-    .seqno_mask = ~_base_id_##_mask, \
-    .suffix_length = _base_id_##_suffix_length \
+    .remapped_id = _remapped_id_, \
+    .remapped_board = _remapped_board_ \
 }
 
-static const multipacket_message_def_t multipacket_message_definitions[NUM_MULTIPACKET_MESSAGES] = {
-        MULTIPACKET_DEFINITION(ts_mpu9250_data, sizeof(mpu9250_data_t)),
-        MULTIPACKET_DEFINITION(ts_adis16405_data, sizeof(adis16405_data_t)),
+static const can_mapping_t can_mappings[NUM_CAN_MAPPINGS] = {
+        CAN_MAPPING(ts_mpu9250_data, sizeof(mpu9250_data_t), 7, 5),
+        CAN_MAPPING(ts_adis16405_data, sizeof(adis16405_data_t), 6, 5),
+        CAN_MAPPING(ts_state_estimate_data, sizeof(state_estimate_t), 5, 5),
+        CAN_MAPPING(ts_ms5611_data, sizeof(ms5611data_t), 4, 5),
+        CAN_MAPPING(ts_component_state, sizeof(component_state_update_t), 0, 5),
 };
 
 bool can_interface_check_multipacket_definitions(void) {
-    for (int i = 0; i < NUM_MULTIPACKET_MESSAGES; i++) {
-        const multipacket_message_def_t* def = &multipacket_message_definitions[i];
+    for (int i = 0; i < NUM_CAN_MAPPINGS; i++) {
+        const can_mapping_t* def = &can_mappings[i];
         if (def->size_in_packets > MAX_SEQNO) {
-            COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
-            return false;
-        }
-        if (((def->size_in_packets - 1) << def->suffix_length) > 0b11111111111) {
             COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
             return false;
         }
@@ -43,12 +42,12 @@ bool can_interface_check_multipacket_definitions(void) {
     return true;
 }
 
-static void resetMultipacketMessage(multipacket_message_buffer_t* msg) {
+static void resetMultipacketMessage(can_mapping_buffer_t* msg) {
 	msg->valid_idx = 0;
 }
 
-static bool isMultipacketValid(const multipacket_message_def_t* def, multipacket_message_buffer_t* msg) {
-	return def->size_in_packets == msg->valid_idx;
+static bool isMultipacketValid(const can_mapping_t* map, can_mapping_buffer_t* msg) {
+	return map->size_in_packets == msg->valid_idx;
 }
 
 void can_interface_init(can_interface_t* id) {
@@ -58,8 +57,8 @@ void can_interface_init(can_interface_t* id) {
     telemetry_allocator_init(id->telemetry_allocator);
 
     COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_ok);
-	for (int i = 0; i < NUM_MULTIPACKET_MESSAGES; i++)
-		resetMultipacketMessage(&id->multipacket_message_buffers[i]);
+	for (int i = 0; i < NUM_CAN_MAPPINGS; i++)
+		resetMultipacketMessage(&id->mapping_buffers[i]);
 
     id->initialized = true;
 }
@@ -75,13 +74,26 @@ static void handleFullPacket(can_interface_t* interface, uint16_t telemetry_id, 
 	messaging_send(packet, 0);
 }
 
-static int getMultipacketIndex(uint16_t telemetry_id) {
-	for (int i = 0; i < NUM_MULTIPACKET_MESSAGES; i++) {
-		uint16_t mask = ~(multipacket_message_definitions[i].seqno_mask);
-		if ((telemetry_id & mask) == multipacket_message_definitions[i].base_id)
+static int getMappingForTelemetryID(uint16_t telemetry_id) {
+	for (int i = 0; i < NUM_CAN_MAPPINGS; i++) {
+		if (telemetry_id == can_mappings[i].telemetry_id)
 			return i;
 	}
 	return -1;
+}
+
+static int getMappingForCanID(uint16_t can_id) {
+    uint8_t id = (uint8_t)((can_id >> 8) & 0b111);
+    uint8_t board = (uint8_t)(can_id & 0b11111);
+    for (int i = 0; i < NUM_CAN_MAPPINGS; i++) {
+        if (id == can_mappings[i].remapped_id && board == can_mappings[i].remapped_board)
+            return i;
+    }
+    return -1;
+}
+
+static uint16_t getCanID(uint16_t remapped_id, uint16_t seqno, uint16_t board) {
+    return (remapped_id << 8) | (seqno << 5) | board;
 }
 
 void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool can_rtr, uint8_t *data, uint8_t datalen, uint32_t timestamp) {
@@ -93,75 +105,70 @@ void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool
     if (datalen == 0)
         return;
 
-    int multipacket_index = getMultipacketIndex(can_msg_id);
-    if (multipacket_index < 0) {
-        handleFullPacket(interface, can_msg_id, data, datalen, timestamp);
+    int mapping_idx = getMappingForCanID(can_msg_id);
+    if (mapping_idx < 0) {
+        return; // Ignore packets we don't know how to handle
+    }
+
+    can_mapping_buffer_t* mapping_buffer = &interface->mapping_buffers[mapping_idx];
+    const can_mapping_t* map = &can_mappings[mapping_idx];
+
+	uint8_t seqno = (uint8_t)((can_msg_id >> 5) & 0b111);
+
+    if (seqno != mapping_buffer->valid_idx) {
+        mapping_buffer->valid_idx = 0;
         return;
     }
 
-    multipacket_message_buffer_t* multipacket = &interface->multipacket_message_buffers[multipacket_index];
-    const multipacket_message_def_t* def = &multipacket_message_definitions[multipacket_index];
-
-	uint8_t seqno = (uint8_t) ((can_msg_id & def->seqno_mask) >> def->suffix_length);
-
-    if (seqno != multipacket->valid_idx) {
-        multipacket->valid_idx = 0;
-        return;
-    }
-
-	uint8_t* ptr = (uint8_t*)&multipacket->data_buffer;
+	uint8_t* ptr = (uint8_t*)&mapping_buffer->data_buffer;
 	ptr += seqno * 8;
 
-    if (seqno >= def->size_in_packets) {
+    if (seqno >= map->size_in_packets) {
         COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
         return;
     }
 
-	if (seqno*8 + datalen > def->size_in_bytes) {
+	if (seqno*8 + datalen > map->size_in_bytes) {
 		COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
 		return;
 	}
 
 	memcpy(ptr, data, datalen);
 
-	multipacket->valid_idx++;
+	mapping_buffer->valid_idx++;
 
-	if (isMultipacketValid(def, multipacket)) {
-		handleFullPacket(interface, def->base_id, multipacket->data_buffer, def->size_in_bytes, timestamp);
-		resetMultipacketMessage(multipacket);
+	if (isMultipacketValid(map, mapping_buffer)) {
+		handleFullPacket(interface, map->telemetry_id, mapping_buffer->data_buffer, map->size_in_bytes, timestamp);
+		resetMultipacketMessage(mapping_buffer);
 	}
 }
 
 bool can_interface_send(can_interface_t* interface, const telemetry_t* packet, message_metadata_t metadata) {
     (void)metadata;
-    if (packet->header.length <= 8) {
-        interface->can_send(packet->header.id, false, packet->payload, packet->header.length);
-        return true;
-    }
 
-    int multipacket_index = getMultipacketIndex(packet->header.id);
-    if (multipacket_index < 0) {
+    int mapping_idx = getMappingForTelemetryID(packet->header.id);
+    if (mapping_idx < 0) {
         COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
         return true;
     }
 
-    const multipacket_message_def_t* def = &multipacket_message_definitions[multipacket_index];
+    const can_mapping_t* map = &can_mappings[mapping_idx];
 
-    if (def->size_in_bytes != packet->header.length) {
+    if (map->size_in_bytes != packet->header.length) {
         COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
         return true;
     }
 
     uint8_t* ptr = packet->payload;
-    uint8_t remaining = packet->header.length;
-    int i = 0;
+    uint8_t remaining = (uint8_t)packet->header.length;
+    uint8_t i = 0;
     while (true) {
-        if ((i << def->suffix_length) & ~def->seqno_mask || (i << def->suffix_length) > 0b11111111111) {
+        if (i >= MAX_SEQNO) {
             COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
             return true;
         }
 
-        interface->can_send((uint16_t) (packet->header.id | i << def->suffix_length), false, ptr, remaining > 8 ? (uint8_t)8 : remaining);
+        interface->can_send(getCanID(map->remapped_id, i, map->remapped_board), false, ptr, remaining > 8 ? (uint8_t)8 : remaining);
         ptr += 8;
         i++;
 

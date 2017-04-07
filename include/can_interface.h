@@ -10,19 +10,19 @@ extern "C" {
 
 typedef void(*can_interface_send_t)(uint16_t msg_id, bool can_rtr, uint8_t* data, uint8_t datalen);
 
-#define NUM_MULTIPACKET_MESSAGES 2
+#define NUM_CAN_MAPPINGS 5
 #define MAX_SEQNO 8
 
 typedef struct {
     uint8_t data_buffer[MAX_SEQNO * 8];
     int valid_idx;
-} multipacket_message_buffer_t;
+} can_mapping_buffer_t;
 
 typedef struct can_interface_t {
     const can_interface_send_t can_send;
     telemetry_allocator_t* const telemetry_allocator;
     bool initialized;
-    multipacket_message_buffer_t multipacket_message_buffers[NUM_MULTIPACKET_MESSAGES];
+    can_mapping_buffer_t mapping_buffers[NUM_CAN_MAPPINGS];
 } can_interface_t;
 
 #define CAN_INTERFACE(name, can_send, heap_size) \

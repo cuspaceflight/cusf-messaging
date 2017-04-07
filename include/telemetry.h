@@ -13,8 +13,7 @@ extern "C" {
 
 typedef struct telemetry_header_t {
     uint16_t id;
-    uint8_t length;
-    uint8_t reserved;
+    uint16_t length;
     uint32_t timestamp;
 } telemetry_header_t;
 

@@ -6,59 +6,46 @@ extern "C" {
 #endif
 
 // Defines a telemetry source
-#define TELEMETRY_SOURCE(name, parent_name, id, suffix_length) \
-    name##_mask = ((1 << suffix_length)-1), \
-    name = ((id << parent_name##_suffix_length) & name##_mask) | parent_name, \
-    name##_suffix_length = suffix_length
+#define TELEMETRY_SOURCE(name, parent_name, id, delta_prefix_length) \
+    name##_prefix_length = parent_name##_prefix_length + delta_prefix_length, \
+    name##_mask = 0xFFFF ^ ((1 << (16 - name##_prefix_length))-1), \
+    name = parent_name | (id << (16 - name##_prefix_length))
 
 typedef enum {
     ts_all = 0b00000000000,
     ts_all_mask = 0b00000000000,
-    ts_all_suffix_length = 0,
+    ts_all_prefix_length = 0,
+
+    // Root Namespace - 16 bits remaining
+    TELEMETRY_SOURCE(ts_system, ts_all, 0, 8),
+    TELEMETRY_SOURCE(ts_spalax, ts_all, 1, 8),
 
 
-    //
-    // Can be sent over CAN BUS and stored in m3tel format
-    //
-
-    TELEMETRY_SOURCE(ts_m3fc, ts_all,                                   1,        5),
-    TELEMETRY_SOURCE(ts_m3psu, ts_all,                                  2,        5),
-    TELEMETRY_SOURCE(ts_m3pyro, ts_all,                                 3,        5),
-    TELEMETRY_SOURCE(ts_m3radio, ts_all,                                4,        5),
-    TELEMETRY_SOURCE(ts_m3imu, ts_all,                                  5,        5),
-    TELEMETRY_SOURCE(ts_m3dl, ts_all,                                   6,        5),
-
-    // Component State
-    TELEMETRY_SOURCE(ts_component_state, ts_m3imu,                      0,       11),
-
-    // MS5611
-    TELEMETRY_SOURCE(ts_ms5611, ts_m3imu,                               0b001010,11),
-    TELEMETRY_SOURCE(ts_ms5611_data, ts_ms5611,                         0,       11),
-
-    // MPU9250
-    TELEMETRY_SOURCE(ts_mpu9250, ts_m3imu,                              0b011,    8),
-    TELEMETRY_SOURCE(ts_mpu9250_data, ts_mpu9250,                       0b001,    9),
-
-    // ADIS16405
-    TELEMETRY_SOURCE(ts_adis16405, ts_m3imu,                            0b110,    8),
-    TELEMETRY_SOURCE(ts_adis16405_data, ts_adis16405,                   0b000,    9),
+    // System Namespace - 8 bits remaining
+    TELEMETRY_SOURCE(ts_component_state, ts_system, 0, 8),
 
 
-    //
-    // Cannot be sent over CAN BUS and cannot be stored in m3tel format
-    //
-
-    TELEMETRY_SOURCE(ts_spalax, ts_all,                                 31,       5),
-
-    // State Estimation
-    TELEMETRY_SOURCE(ts_state_estimation, ts_spalax,                    0b00000,   10),
-    TELEMETRY_SOURCE(ts_state_estimate_data, ts_state_estimation,       0b0,       11),
-    TELEMETRY_SOURCE(ts_state_estimate_debug, ts_state_estimation,      0b1,       11),
+    // Spalax Namespace - 8 bits remaining
+    TELEMETRY_SOURCE(ts_raw_data, ts_spalax, 0, 2),
+    TELEMETRY_SOURCE(ts_state_estimate, ts_spalax, 1, 2),
 
 
-    // UBLOX
-    TELEMETRY_SOURCE(ts_ublox, ts_spalax,                               0b00001,   10),
-    TELEMETRY_SOURCE(ts_ublox_nav, ts_ublox,                            0b0,       11),
+    // Spalax Raw Data Namespace - 6 bits remaining
+    TELEMETRY_SOURCE(ts_imu_data, ts_raw_data, 0, 2),
+    TELEMETRY_SOURCE(ts_gps_data, ts_raw_data, 1, 2),
+
+
+    // Spalax IMU Data Namespace - 4 bits remaining
+    TELEMETRY_SOURCE(ts_ms5611_data, ts_imu_data, 0, 4),
+    TELEMETRY_SOURCE(ts_mpu9250_data, ts_imu_data, 1, 4),
+    TELEMETRY_SOURCE(ts_adis16405_data, ts_imu_data, 2, 4),
+
+    // Spalax GPS Data Namespace - 4 bits remaining
+    TELEMETRY_SOURCE(ts_ublox_nav, ts_gps_data, 0, 4),
+
+    // Spalax State Estimate Namespace - 4 bits remaining
+    TELEMETRY_SOURCE(ts_state_estimate_data, ts_state_estimate, 0, 4),
+    TELEMETRY_SOURCE(ts_state_estimate_debug, ts_state_estimate, 1, 4),
 
 } telemetry_id_t;
 
