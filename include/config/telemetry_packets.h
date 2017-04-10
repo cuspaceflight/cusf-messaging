@@ -80,10 +80,9 @@ typedef struct state_estimate_debug_t {
     float magno_bias[3];
     float accel_ref[3];
     float magno_ref[3];
-    float magno_ref_bias[3];
     float gyro_sf[3];
 
-    float P[30];
+    float P[24];
 } state_estimate_debug_t;
 
 #ifdef __cplusplus
