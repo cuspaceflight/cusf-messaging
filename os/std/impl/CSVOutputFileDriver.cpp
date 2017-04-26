@@ -23,6 +23,7 @@ static std::ostream* s_stream = nullptr;
 static void print_formats() {
     *s_stream << "StartFormatDescriptors" << std::endl;
     *s_stream << "MPU9250Data, Accel X, Accel Y, Accel Z, Gyro X, Gyro Y, Gyro Z, Magno X, Magno Y, Magno Z" << std::endl;
+    *s_stream << "ADIS16405Data, Accel X, Accel Y, Accel Z, Gyro X, Gyro Y, Gyro Z, Magno X, Magno Y, Magno Z, Supply" << std::endl;
     *s_stream << "StateUpdate, Component String, Component #, State, Overall State, Line Number" << std::endl;
     *s_stream << "Ublox, Fix Type, Latitude, Longitude, Height, Height MSL" << std::endl;
     *s_stream << "MS5611, Temperature, Pressure" << std::endl;
@@ -45,6 +46,23 @@ static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) 
         *s_stream << data->magno[0] << ',';
         *s_stream << data->magno[1] << ',';
         *s_stream << data->magno[2] << std::endl;
+    } else if (packet->header.id == ts_adis16405_data) {
+        auto data = telemetry_get_payload<adis16405_data_t>(packet);
+        *s_stream << "ADIS16405Data,";
+
+        *s_stream << data->accel[0] << ',';
+        *s_stream << data->accel[1] << ',';
+        *s_stream << data->accel[2] << ',';
+
+        *s_stream << data->gyro[0] << ',';
+        *s_stream << data->gyro[1] << ',';
+        *s_stream << data->gyro[2] << ',';
+
+        *s_stream << data->magno[0] << ',';
+        *s_stream << data->magno[1] << ',';
+        *s_stream << data->magno[2] << ',';
+
+        *s_stream << data->supply << std::endl;
     } else if (packet->header.id == ts_component_state) {
         auto data = telemetry_get_payload<component_state_update_t>(packet);
         const char* component = component_state_get_name((avionics_component_t) data->component);
