@@ -80,7 +80,10 @@ typedef struct state_estimate_debug_t {
     float magno_bias[3];
     float accel_ref[3];
     float magno_ref[3];
-    float gyro_sf[3];
+    float gyro_norm_exp_avg;
+    float accel_norm_exp_avg;
+    float magno_norm_exp_avg;
+    float accel_exp_variance;
 
     float P[24];
 } state_estimate_debug_t;
