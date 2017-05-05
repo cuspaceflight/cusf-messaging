@@ -4,6 +4,7 @@
 #include <iostream>
 #include <component_state.h>
 #include "cpp_utils.h"
+#include "time_utils.h"
 
 #define READ_BUFFER_SIZE 255
 #define WRITE_BUFFER_SIZE 255
@@ -20,10 +21,15 @@ typedef struct {
 static bool is_running = false;
 static std::ostream* s_stream = nullptr;
 
+static uint64_t mpu_timestamp = 0;
+static uint32_t last_mpu_timestamp = 0;
+static uint64_t adis_timestamp = 0;
+static uint32_t last_adis_timestamp = 0;
+
 static void print_formats() {
     *s_stream << "StartFormatDescriptors" << std::endl;
-    *s_stream << "MPU9250Data, Accel X, Accel Y, Accel Z, Gyro X, Gyro Y, Gyro Z, Magno X, Magno Y, Magno Z" << std::endl;
-    *s_stream << "ADIS16405Data, Accel X, Accel Y, Accel Z, Gyro X, Gyro Y, Gyro Z, Magno X, Magno Y, Magno Z, Supply" << std::endl;
+    *s_stream << "MPU9250Data, Accel X, Accel Y, Accel Z, Gyro X, Gyro Y, Gyro Z, Magno X, Magno Y, Magno Z, Timestamp" << std::endl;
+    *s_stream << "ADIS16405Data, Accel X, Accel Y, Accel Z, Gyro X, Gyro Y, Gyro Z, Magno X, Magno Y, Magno Z, Supply, Timestamp" << std::endl;
     *s_stream << "StateUpdate, Component String, Component #, State, Overall State, Line Number" << std::endl;
     *s_stream << "Ublox, Fix Type, Latitude, Longitude, Height, Height MSL" << std::endl;
     *s_stream << "MS5611, Temperature, Pressure" << std::endl;
@@ -32,6 +38,13 @@ static void print_formats() {
 
 static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) {
     if (packet->header.id == ts_mpu9250_data) {
+        if (last_mpu_timestamp == 0) {
+            last_mpu_timestamp = packet->header.timestamp;
+        } else {
+            mpu_timestamp += clocks_between(last_mpu_timestamp, packet->header.timestamp);
+            last_mpu_timestamp = packet->header.timestamp;
+        }
+
         auto data = telemetry_get_payload<mpu9250_data_t>(packet);
         *s_stream << "MPU9250Data,";
 
@@ -45,8 +58,15 @@ static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) 
 
         *s_stream << data->magno[0] << ',';
         *s_stream << data->magno[1] << ',';
-        *s_stream << data->magno[2] << std::endl;
+        *s_stream << data->magno[2] << ',';
+        *s_stream << (double)mpu_timestamp / platform_get_counter_frequency() << std::endl;
     } else if (packet->header.id == ts_adis16405_data) {
+        if (last_adis_timestamp == 0) {
+            last_adis_timestamp = packet->header.timestamp;
+        } else {
+            adis_timestamp += clocks_between(last_adis_timestamp, packet->header.timestamp);
+            last_adis_timestamp = packet->header.timestamp;
+        }
         auto data = telemetry_get_payload<adis16405_data_t>(packet);
         *s_stream << "ADIS16405Data,";
 
@@ -62,7 +82,9 @@ static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) 
         *s_stream << data->magno[1] << ',';
         *s_stream << data->magno[2] << ',';
 
-        *s_stream << data->supply << std::endl;
+        *s_stream << data->supply << ',';
+
+        *s_stream << (double)adis_timestamp / platform_get_counter_frequency() << std::endl;
     } else if (packet->header.id == ts_component_state) {
         auto data = telemetry_get_payload<component_state_update_t>(packet);
         const char* component = component_state_get_name((avionics_component_t) data->component);
@@ -101,6 +123,11 @@ static void reader_thread() {
 
 CSVOutputFileDriver::CSVOutputFileDriver(const char* filename) {
     UtilAssert(!is_running && !s_stream, "Only one serial driver can be active at once");
+
+    mpu_timestamp = 0;
+    last_mpu_timestamp = 0;
+    adis_timestamp = 0;
+    last_adis_timestamp = 0;
 
     if (std::string("stdout.csv") != filename) {
         output_stream = std::make_unique<std::ofstream>(filename, std::ofstream::out);
