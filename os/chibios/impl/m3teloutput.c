@@ -72,7 +72,7 @@ static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) 
     return can_interface_send(&can_interface, packet, flags);
 }
 
-MESSAGING_CONSUMER(messaging_consumer, 0, 0, 0, 0, receive_packet, 100);
+MESSAGING_CONSUMER(messaging_consumer, 0, 0, message_flags_send_over_can, message_flags_send_over_can, receive_packet, 100);
 
 void m3tel_output_thread(void* arg) {
     // TODO: Use filename
