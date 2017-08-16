@@ -33,6 +33,8 @@ bool can_interface_check_multipacket_definitions(void);
 
 void can_interface_init(can_interface_t* interface);
 
+bool can_interface_can_send(const telemetry_t* packet, message_metadata_t metadata);
+
 bool can_interface_send(can_interface_t* interface, const telemetry_t* packet, message_metadata_t metadata);
 
 void can_interface_receive(can_interface_t* id, uint16_t msg_id, bool can_rtr, uint8_t* data, uint8_t datalen, uint32_t timestamp);

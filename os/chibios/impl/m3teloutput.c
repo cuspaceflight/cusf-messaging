@@ -68,11 +68,13 @@ static void can_send(uint16_t msg_id, bool can_rtr, uint8_t* data, uint8_t datal
 CAN_INTERFACE(can_interface, can_send, 4)
 
 static bool receive_packet(const telemetry_t* packet, message_metadata_t flags) {
+    if (!can_interface_can_send(packet, flags))
+        return true;
     last_timestamp = packet->header.timestamp;
     return can_interface_send(&can_interface, packet, flags);
 }
 
-MESSAGING_CONSUMER(messaging_consumer, 0, 0, message_flags_send_over_can, message_flags_send_over_can, receive_packet, 100);
+MESSAGING_CONSUMER(messaging_consumer, 0, 0, message_flags_send_over_can, 0, receive_packet, 100);
 
 void m3tel_output_thread(void* arg) {
     // TODO: Use filename

@@ -96,6 +96,15 @@ static uint16_t getCanID(uint16_t remapped_id, uint16_t seqno, uint16_t board) {
     return (remapped_id << 8) | (seqno << 5) | board;
 }
 
+static void handleUnrecognisedPacket(can_interface_t* interface, uint16_t can_msg_id, bool can_rtr, uint8_t *data, uint8_t datalen, uint32_t timestamp) {
+    if (can_msg_id & ts_m3_can_mask) {
+        COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
+        return;
+    }
+
+    handleFullPacket(interface, can_msg_id | ts_m3_can, data, datalen, timestamp);
+}
+
 void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool can_rtr, uint8_t *data, uint8_t datalen, uint32_t timestamp) {
 	(void)can_rtr;
 	if (!interface->initialized)
@@ -107,6 +116,7 @@ void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool
 
     int mapping_idx = getMappingForCanID(can_msg_id);
     if (mapping_idx < 0) {
+        handleUnrecognisedPacket(interface, can_msg_id, can_rtr, data, datalen, timestamp);
         return; // Ignore packets we don't know how to handle
     }
 
@@ -143,8 +153,23 @@ void can_interface_receive(can_interface_t* interface, uint16_t can_msg_id, bool
 	}
 }
 
+static bool sendWrappedPacket(can_interface_t* interface, const telemetry_t* packet, message_metadata_t metadata) {
+    if (packet->header.length > 8) {
+        COMPONENT_STATE_UPDATE(avionics_component_can_telemetry, state_error);
+        return true;
+    }
+
+    interface->can_send(packet->header.id & (~ts_m3_can_mask), false, packet->payload, (uint8_t) packet->header.length);
+
+    return true;
+}
+
 bool can_interface_send(can_interface_t* interface, const telemetry_t* packet, message_metadata_t metadata) {
     (void)metadata;
+
+    if (packet->header.id & ts_m3_can_mask) {
+        return sendWrappedPacket(interface, packet, metadata);
+    }
 
     int mapping_idx = getMappingForTelemetryID(packet->header.id);
     if (mapping_idx < 0) {
@@ -177,4 +202,7 @@ bool can_interface_send(can_interface_t* interface, const telemetry_t* packet, m
         remaining -= 8;
     };
     return true;
+}
+bool can_interface_can_send(const telemetry_t *packet, message_metadata_t metadata) {
+    return (metadata & message_flags_send_over_can) || (packet->header.id & ts_m3_can_mask);
 }

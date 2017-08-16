@@ -17,15 +17,16 @@ typedef enum {
     ts_all_prefix_length = 0,
 
     // Root Namespace - 16 bits remaining
-    TELEMETRY_SOURCE(ts_system, ts_all, 0, 8),
-    TELEMETRY_SOURCE(ts_spalax, ts_all, 1, 8),
+    TELEMETRY_SOURCE(ts_system, ts_all, 0, 5),
+    TELEMETRY_SOURCE(ts_spalax, ts_all, 1, 5),
+    TELEMETRY_SOURCE(ts_m3_can, ts_all, 2, 5), // Telemetry source for unrecognised CAN packets
 
 
-    // System Namespace - 8 bits remaining
+    // System Namespace - 11 bits remaining
     TELEMETRY_SOURCE(ts_component_state, ts_system, 0, 8),
 
 
-    // Spalax Namespace - 8 bits remaining
+    // Spalax Namespace - 11 bits remaining
     TELEMETRY_SOURCE(ts_raw_data, ts_spalax, 0, 2),
     TELEMETRY_SOURCE(ts_state_estimate, ts_spalax, 1, 2),
 
