@@ -167,7 +167,7 @@ static bool sendWrappedPacket(can_interface_t* interface, const telemetry_t* pac
 bool can_interface_send(can_interface_t* interface, const telemetry_t* packet, message_metadata_t metadata) {
     (void)metadata;
 
-    if (packet->header.id & ts_m3_can_mask) {
+    if ((packet->header.id & ts_m3_can_mask) == ts_m3_can) {
         return sendWrappedPacket(interface, packet, metadata);
     }
 
